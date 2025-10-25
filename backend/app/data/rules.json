@@ -1,0 +1,502 @@
+{
+  "rules": [
+    {
+      "id": "rule_1",
+      "conditions": [
+        {"fact_name": "申請者と会社の国籍が同じです", "required_value": true},
+        {"fact_name": "会社がEビザの条件を満たします", "required_value": true},
+        {"fact_name": "申請者がEビザの条件を満たします", "required_value": true}
+      ],
+      "operator": "AND",
+      "conclusion": "Eビザでの申請ができます",
+      "conclusion_value": true,
+      "priority": 100
+    },
+    {
+      "id": "rule_2",
+      "conditions": [
+        {"fact_name": "会社がEビザの投資の条件を満たします", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "会社がEビザの条件を満たします",
+      "conclusion_value": true,
+      "priority": 90
+    },
+    {
+      "id": "rule_2b",
+      "conditions": [
+        {"fact_name": "会社がEビザの貿易の条件を満たします", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "会社がEビザの条件を満たします",
+      "conclusion_value": true,
+      "priority": 90
+    },
+    {
+      "id": "rule_3",
+      "conditions": [
+        {"fact_name": "減価償却前の設備や建物が30万ドル以上財務諸表の資産に計上されています", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "会社がEビザの投資の条件を満たします",
+      "conclusion_value": true,
+      "priority": 80
+    },
+    {
+      "id": "rule_3b",
+      "conditions": [
+        {"fact_name": "30万ドル以上で企業を買収した会社か、買収された会社です", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "会社がEビザの投資の条件を満たします",
+      "conclusion_value": true,
+      "priority": 80
+    },
+    {
+      "id": "rule_3c",
+      "conditions": [
+        {"fact_name": "まだ十分な売り上げがなく、これまでに人件費などのランニングコストを含め、30万ドル以上支出しています", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "会社がEビザの投資の条件を満たします",
+      "conclusion_value": true,
+      "priority": 80
+    },
+    {
+      "id": "rule_3d",
+      "conditions": [
+        {"fact_name": "会社設立のために、30万ドル以上支出しました（不動産を除く）", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "会社がEビザの投資の条件を満たします",
+      "conclusion_value": true,
+      "priority": 80
+    },
+    {
+      "id": "rule_4",
+      "conditions": [
+        {"fact_name": "会社の行う貿易の50％が日米間です", "required_value": true},
+        {"fact_name": "会社の行う貿易は継続的です", "required_value": true},
+        {"fact_name": "貿易による利益が会社の経費の80％以上をカバーしています", "required_value": true}
+      ],
+      "operator": "AND",
+      "conclusion": "会社がEビザの貿易の条件を満たします",
+      "conclusion_value": true,
+      "priority": 80
+    },
+    {
+      "id": "rule_5",
+      "conditions": [
+        {"fact_name": "申請者がEビザのマネージャー以上の条件を満たします", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "申請者がEビザの条件を満たします",
+      "conclusion_value": true,
+      "priority": 70
+    },
+    {
+      "id": "rule_5b",
+      "conditions": [
+        {"fact_name": "申請者がEビザのスタッフの条件を満たします", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "申請者がEビザの条件を満たします",
+      "conclusion_value": true,
+      "priority": 70
+    },
+    {
+      "id": "rule_5c",
+      "conditions": [
+        {"fact_name": "EビザTDY(short-term needs)の条件を満たします", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "申請者がEビザの条件を満たします",
+      "conclusion_value": true,
+      "priority": 70
+    },
+    {
+      "id": "rule_6",
+      "conditions": [
+        {"fact_name": "米国拠点でEビザでマネージャー以上として認められるポジションに就きます", "required_value": true},
+        {"fact_name": "マネージャー以上のポジションの業務を遂行する十分な能力があります", "required_value": true}
+      ],
+      "operator": "AND",
+      "conclusion": "申請者がEビザのマネージャー以上の条件を満たします",
+      "conclusion_value": true,
+      "priority": 60
+    },
+    {
+      "id": "rule_7",
+      "conditions": [
+        {"fact_name": "CEOなどのオフィサーのポジションに就きます", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "米国拠点でEビザでマネージャー以上として認められるポジションに就きます",
+      "conclusion_value": true,
+      "priority": 50
+    },
+    {
+      "id": "rule_7b",
+      "conditions": [
+        {"fact_name": "経営企画のマネージャーなど、米国拠点の経営に関わるポジションに就きます", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "米国拠点でEビザでマネージャー以上として認められるポジションに就きます",
+      "conclusion_value": true,
+      "priority": 50
+    },
+    {
+      "id": "rule_7c",
+      "conditions": [
+        {"fact_name": "評価・雇用に責任を持つ複数のフルタイムのスタッフを部下に持つマネージャー以上のポジションに就きます", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "米国拠点でEビザでマネージャー以上として認められるポジションに就きます",
+      "conclusion_value": true,
+      "priority": 50
+    },
+    {
+      "id": "rule_8",
+      "conditions": [
+        {"fact_name": "米国拠点のポジションの業務に深く関連する業務の経験が2年以上あります", "required_value": true},
+        {"fact_name": "マネジメント経験が2年以上あります", "required_value": true}
+      ],
+      "operator": "AND",
+      "conclusion": "マネージャー以上のポジションの業務を遂行する十分な能力があります",
+      "conclusion_value": true,
+      "priority": 50
+    },
+    {
+      "id": "rule_9",
+      "conditions": [
+        {"fact_name": "2年以上のマネージャー経験があります", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "マネジメント経験が2年以上あります",
+      "conclusion_value": true,
+      "priority": 40
+    },
+    {
+      "id": "rule_9b",
+      "conditions": [
+        {"fact_name": "マネジメントが求められるプロジェクトマネージャーなどの2年以上の経験があります", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "マネジメント経験が2年以上あります",
+      "conclusion_value": true,
+      "priority": 40
+    },
+    {
+      "id": "rule_10",
+      "conditions": [
+        {"fact_name": "理系の大学院卒で、米国拠点の技術系の業務に深く関連する3年以上の業務経験があります", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "申請者がEビザのスタッフの条件を満たします",
+      "conclusion_value": true,
+      "priority": 60
+    },
+    {
+      "id": "rule_10b",
+      "conditions": [
+        {"fact_name": "理系の学部卒で、米国拠点の技術系の業務に深く関連する4年以上の業務経験があります", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "申請者がEビザのスタッフの条件を満たします",
+      "conclusion_value": true,
+      "priority": 60
+    },
+    {
+      "id": "rule_10c",
+      "conditions": [
+        {"fact_name": "米国拠点の業務に深く関連する5年以上の業務経験があります", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "申請者がEビザのスタッフの条件を満たします",
+      "conclusion_value": true,
+      "priority": 60
+    },
+    {
+      "id": "rule_11",
+      "conditions": [
+        {"fact_name": "2年以内の期間で、目的を限定した派遣理由を説明できます", "required_value": true},
+        {"fact_name": "米国拠点の業務に深く関連する2年以上の業務経験があります", "required_value": true}
+      ],
+      "operator": "AND",
+      "conclusion": "EビザTDY(short-term needs)の条件を満たします",
+      "conclusion_value": true,
+      "priority": 60
+    },
+    {
+      "id": "rule_12",
+      "conditions": [
+        {"fact_name": "アメリカ以外からアメリカへのグループ内での異動です", "required_value": true},
+        {"fact_name": "会社がBlanket Lビザの条件を満たします", "required_value": true},
+        {"fact_name": "申請者がBlanket Lビザの条件を満たします", "required_value": true}
+      ],
+      "operator": "AND",
+      "conclusion": "Blanket Lビザでの申請ができます",
+      "conclusion_value": true,
+      "priority": 100
+    },
+    {
+      "id": "rule_13",
+      "conditions": [
+        {"fact_name": "アメリカにある子会社の売り上げの合計が25百万ドル以上です", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "会社がBlanket Lビザの条件を満たします",
+      "conclusion_value": true,
+      "priority": 80
+    },
+    {
+      "id": "rule_13b",
+      "conditions": [
+        {"fact_name": "アメリカにある子会社が1,000人以上ローカル採用をしています", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "会社がBlanket Lビザの条件を満たします",
+      "conclusion_value": true,
+      "priority": 80
+    },
+    {
+      "id": "rule_13c",
+      "conditions": [
+        {"fact_name": "1年間に10人以上Lビザのペティション申請をしています", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "会社がBlanket Lビザの条件を満たします",
+      "conclusion_value": true,
+      "priority": 80
+    },
+    {
+      "id": "rule_14",
+      "conditions": [
+        {"fact_name": "直近3年のうち1年以上、アメリカ以外のグループ会社に所属していました", "required_value": true},
+        {"fact_name": "Blanket Lビザのマネージャーまたはスタッフの条件を満たします", "required_value": true}
+      ],
+      "operator": "AND",
+      "conclusion": "申請者がBlanket Lビザの条件を満たします",
+      "conclusion_value": true,
+      "priority": 70
+    },
+    {
+      "id": "rule_15",
+      "conditions": [
+        {"fact_name": "Blanket Lビザのマネージャーの条件を満たします", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "Blanket Lビザのマネージャーまたはスタッフの条件を満たします",
+      "conclusion_value": true,
+      "priority": 60
+    },
+    {
+      "id": "rule_15b",
+      "conditions": [
+        {"fact_name": "Blanket Lビザスタッフの条件を満たします", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "Blanket Lビザのマネージャーまたはスタッフの条件を満たします",
+      "conclusion_value": true,
+      "priority": 60
+    },
+    {
+      "id": "rule_16",
+      "conditions": [
+        {"fact_name": "マネージャーとしての経験があります", "required_value": true},
+        {"fact_name": "アメリカでの業務はマネージャーとみなされます", "required_value": true}
+      ],
+      "operator": "AND",
+      "conclusion": "Blanket Lビザのマネージャーの条件を満たします",
+      "conclusion_value": true,
+      "priority": 50
+    },
+    {
+      "id": "rule_17",
+      "conditions": [
+        {"fact_name": "specialized knowledgeがあります", "required_value": true},
+        {"fact_name": "アメリカでの業務はspecialized knowledgeを必要とします", "required_value": true}
+      ],
+      "operator": "AND",
+      "conclusion": "Blanket Lビザスタッフの条件を満たします",
+      "conclusion_value": true,
+      "priority": 50
+    },
+    {
+      "id": "rule_18",
+      "conditions": [
+        {"fact_name": "アメリカ以外からアメリカへのグループ内での異動です", "required_value": true},
+        {"fact_name": "申請者がLビザ（Individual）の条件を満たします", "required_value": true}
+      ],
+      "operator": "AND",
+      "conclusion": "Lビザ（Individual）での申請ができます",
+      "conclusion_value": true,
+      "priority": 100
+    },
+    {
+      "id": "rule_19",
+      "conditions": [
+        {"fact_name": "直近3年のうち1年以上、アメリカ以外のグループ会社に所属していました", "required_value": true},
+        {"fact_name": "Lビザ（Individual）のマネージャーまたはスタッフの条件を満たします", "required_value": true},
+        {"fact_name": "Lビザ 質問6", "required_value": true}
+      ],
+      "operator": "AND",
+      "conclusion": "申請者がLビザ（Individual）の条件を満たします",
+      "conclusion_value": true,
+      "priority": 70
+    },
+    {
+      "id": "rule_20",
+      "conditions": [
+        {"fact_name": "マネージャーとしての経験があります", "required_value": true},
+        {"fact_name": "アメリカでの業務はマネージャーとみなされます", "required_value": true},
+        {"fact_name": "アメリカでは大卒、フルタイムの部下が2名以上います", "required_value": true}
+      ],
+      "operator": "AND",
+      "conclusion": "Lビザ（Individual）のマネージャーの条件を満たします",
+      "conclusion_value": true,
+      "priority": 50
+    },
+    {
+      "id": "rule_21",
+      "conditions": [
+        {"fact_name": "specialized knowledgeがあります", "required_value": true},
+        {"fact_name": "アメリカでの業務はspecialized knowledgeを必要とします", "required_value": true}
+      ],
+      "operator": "AND",
+      "conclusion": "Lビザ（Individual）のスタッフの条件を満たします",
+      "conclusion_value": true,
+      "priority": 50
+    },
+    {
+      "id": "rule_22",
+      "conditions": [
+        {"fact_name": "大卒以上で、専攻内容と業務内容が一致しています", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "H-1Bビザでの申請ができます",
+      "conclusion_value": true,
+      "priority": 100
+    },
+    {
+      "id": "rule_22b",
+      "conditions": [
+        {"fact_name": "大卒以上で、専攻内容と業務内容が異なりますが、実務経験が3年以上あります", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "H-1Bビザでの申請ができます",
+      "conclusion_value": true,
+      "priority": 100
+    },
+    {
+      "id": "rule_22c",
+      "conditions": [
+        {"fact_name": "大卒以上ではありませんが、実務経験が(高卒は12年以上、高専卒は3年以上）あります", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "H-1Bビザでの申請ができます",
+      "conclusion_value": true,
+      "priority": 100
+    },
+    {
+      "id": "rule_23",
+      "conditions": [
+        {"fact_name": "Bビザの申請条件を満たす（ESTAの認証は通る）", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "Bビザの申請ができます",
+      "conclusion_value": true,
+      "priority": 100
+    },
+    {
+      "id": "rule_23b",
+      "conditions": [
+        {"fact_name": "Bビザの申請条件を満たす（ESTAの認証は通らない）", "required_value": true}
+      ],
+      "operator": "OR",
+      "conclusion": "Bビザの申請ができます",
+      "conclusion_value": true,
+      "priority": 100
+    },
+    {
+      "id": "rule_24",
+      "conditions": [
+        {"fact_name": "アメリカでの活動は商用の範囲です", "required_value": true},
+        {"fact_name": "1回の滞在期間は90日を越えます", "required_value": true},
+        {"fact_name": "1回の滞在期間は6か月を越えません", "required_value": true}
+      ],
+      "operator": "AND",
+      "conclusion": "Bビザの申請条件を満たす（ESTAの認証は通る）",
+      "conclusion_value": true,
+      "priority": 80
+    },
+    {
+      "id": "rule_25",
+      "conditions": [
+        {"fact_name": "アメリカでの活動は商用の範囲です", "required_value": true},
+        {"fact_name": "1回の滞在期間は6か月を越えません", "required_value": true}
+      ],
+      "operator": "AND",
+      "conclusion": "Bビザの申請条件を満たす（ESTAの認証は通らない）",
+      "conclusion_value": true,
+      "priority": 80
+    },
+    {
+      "id": "rule_26",
+      "conditions": [
+        {"fact_name": "アメリカの会社に販売した装置や設備のための作業をします", "required_value": true},
+        {"fact_name": "装置や設備の販売を示す契約書や発注書があります", "required_value": true},
+        {"fact_name": "1回の滞在期間は6か月を越えません", "required_value": true}
+      ],
+      "operator": "AND",
+      "conclusion": "契約書に基づくBビザの申請ができます",
+      "conclusion_value": true,
+      "priority": 100
+    },
+    {
+      "id": "rule_27",
+      "conditions": [
+        {"fact_name": "H-1Bビザが必要な専門性の高い作業をします", "required_value": true},
+        {"fact_name": "1回の滞在期間は6か月を越えません", "required_value": true}
+      ],
+      "operator": "AND",
+      "conclusion": "B-1 in lieu of H-1Bビザの申請ができます",
+      "conclusion_value": true,
+      "priority": 100
+    },
+    {
+      "id": "rule_28",
+      "conditions": [
+        {"fact_name": "研修にOJTが含まれます", "required_value": true},
+        {"fact_name": "研修期間は18か月以内です", "required_value": true},
+        {"fact_name": "申請者に研修に必要な英語力はあります", "required_value": true}
+      ],
+      "operator": "AND",
+      "conclusion": "J-1ビザの申請ができます",
+      "conclusion_value": true,
+      "priority": 100
+    },
+    {
+      "id": "rule_29",
+      "conditions": [
+        {"fact_name": "研修内容は商用の範囲です", "required_value": true},
+        {"fact_name": "研修期間は６か月以内です", "required_value": true}
+      ],
+      "operator": "AND",
+      "conclusion": "Bビザの申請ができます",
+      "conclusion_value": true,
+      "priority": 100
+    },
+    {
+      "id": "rule_30",
+      "conditions": [
+        {"fact_name": "研修内容は商用の範囲です", "required_value": true},
+        {"fact_name": "研修期間は６か月以内です", "required_value": true}
+      ],
+      "operator": "AND",
+      "conclusion": "B-1 in lieu of H3ビザの申請ができます",
+      "conclusion_value": true,
+      "priority": 100
+    }
+  ]
+}

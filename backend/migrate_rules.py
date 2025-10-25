@@ -135,8 +135,8 @@ if __name__ == "__main__":
     print("Initializing database...")
     init_db()
 
-    # Path to old rules.json
-    old_rules_path = Path(__file__).parent.parent / "visa-expert-system" / "backend" / "app" / "data" / "rules.json"
+    # Path to rules.json
+    old_rules_path = Path(__file__).parent / "app" / "data" / "rules.json"
 
     if not old_rules_path.exists():
         print(f"Error: Rules file not found at {old_rules_path}")
