@@ -1,82 +1,120 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import Optional
 from app.models.database import get_db
 from app.models import schemas
-from app.services import consultation_service
-import uuid
+from app.services.inference_engine import InferenceEngine
+from app.models.models import Question
 
 router = APIRouter(prefix="/consultation", tags=["consultation"])
 
-# Global session ID storage (simplified for now)
-_current_session_id = None
-
-
-def get_or_create_session_id(x_session_id: Optional[str] = Header(None)) -> str:
-    """Get or create session ID from header"""
-    global _current_session_id
-    if x_session_id:
-        _current_session_id = x_session_id
-        return x_session_id
-    if _current_session_id:
-        return _current_session_id
-    _current_session_id = str(uuid.uuid4())
-    return _current_session_id
+# Global state (single user for now)
+_current_engine = None
+_question_history = []
+_visa_type = None
 
 
 @router.post("/start", response_model=schemas.ConsultationResponse)
 async def start_consultation(
     request_data: schemas.StartConsultationRequest,
     db: Session = Depends(get_db),
-    session_id: str = Depends(get_or_create_session_id),
 ):
     """診断を開始"""
-    # Delete existing session if any
-    consultation_service.delete_session(session_id)
+    global _current_engine, _question_history, _visa_type
 
-    # Create new session
-    session = consultation_service.create_session(session_id, db, request_data.visa_type)
-    result = session.start()
+    _visa_type = request_data.visa_type
+    _current_engine = InferenceEngine(db, request_data.visa_type)
+    _question_history = []
 
-    return schemas.ConsultationResponse(**result)
+    # Get first question
+    next_question_fact = _current_engine.get_next_question()
+    next_question = None
+
+    if next_question_fact:
+        question = db.query(Question).filter(Question.fact_name == next_question_fact).first()
+        next_question = question.question_text if question else next_question_fact
+        _question_history.append(next_question)
+
+    return schemas.ConsultationResponse(
+        next_question=next_question,
+        conclusions=[],
+        is_finished=next_question is None
+    )
 
 
 @router.post("/answer", response_model=schemas.ConsultationResponse)
 async def answer_question(
     request_data: schemas.AnswerRequest,
     db: Session = Depends(get_db),
-    session_id: str = Depends(get_or_create_session_id),
 ):
     """質問に回答"""
-    session = consultation_service.get_session(session_id)
-    if not session:
+    global _current_engine, _question_history
+
+    if not _current_engine:
         raise HTTPException(status_code=404, detail="Session not found. Please start consultation first.")
 
-    result = session.answer(request_data.question, request_data.answer)
-    return schemas.ConsultationResponse(**result)
+    # Get fact name from question text
+    question = db.query(Question).filter(Question.question_text == request_data.question).first()
+    fact_name = question.fact_name if question else request_data.question
+
+    # Add fact and run forward chaining
+    _current_engine.add_fact(fact_name, request_data.answer)
+    _current_engine.forward_chain()
+
+    # Get next question
+    next_question_fact = _current_engine.get_next_question()
+    next_question = None
+
+    if next_question_fact:
+        question = db.query(Question).filter(Question.fact_name == next_question_fact).first()
+        next_question = question.question_text if question else next_question_fact
+        if next_question not in _question_history:
+            _question_history.append(next_question)
+
+    # Get conclusions
+    conclusions = _current_engine.get_conclusions()
+    is_finished = _current_engine.is_consultation_finished()
+
+    return schemas.ConsultationResponse(
+        next_question=next_question,
+        conclusions=conclusions,
+        is_finished=is_finished
+    )
 
 
 @router.post("/back")
-async def go_back(
-    session_id: str = Depends(get_or_create_session_id),
-):
+async def go_back(db: Session = Depends(get_db)):
     """前の質問に戻る"""
-    session = consultation_service.get_session(session_id)
-    if not session:
+    global _current_engine, _question_history
+
+    if not _current_engine:
         raise HTTPException(status_code=404, detail="Session not found. Please start consultation first.")
 
-    result = session.back()
-    return result
+    if len(_question_history) <= 1:
+        return {"current_question": _question_history[0] if _question_history else None}
+
+    # Remove last question
+    last_question = _question_history.pop()
+
+    # Get fact name and remove it
+    question = db.query(Question).filter(Question.question_text == last_question).first()
+    if question:
+        _current_engine.remove_fact(question.fact_name)
+        _current_engine.forward_chain()
+
+    # Return current question
+    current_question = _question_history[-1] if _question_history else None
+
+    return {"current_question": current_question}
 
 
 @router.get("/visualization", response_model=schemas.VisualizationResponse)
-async def get_visualization(
-    session_id: str = Depends(get_or_create_session_id),
-):
+async def get_visualization():
     """推論過程の可視化データを取得"""
-    session = consultation_service.get_session(session_id)
-    if not session:
-        raise HTTPException(status_code=404, detail="Session not found. Please start consultation first.")
+    global _current_engine
 
-    result = session.get_visualization()
+    if not _current_engine:
+        # Return empty visualization if no session
+        return schemas.VisualizationResponse(rules=[], fired_rules=[])
+
+    result = _current_engine.get_rule_visualization()
     return schemas.VisualizationResponse(**result)
