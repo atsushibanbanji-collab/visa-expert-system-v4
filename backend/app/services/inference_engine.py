@@ -105,38 +105,37 @@ class InferenceEngine:
     def get_next_question(self) -> Optional[str]:
         """
         次に質問すべき事実を選択
+        ルールの優先度順に、条件を順番に質問していく
         導出可能な事実は質問しない
         """
-        # Get all possible facts from conditions
-        all_condition_facts = set()
         rules = self._get_applicable_rules()
-
-        for rule in rules:
-            for condition in rule.conditions:
-                all_condition_facts.add(condition.fact_name)
 
         # Get derivable facts (facts that are conclusions of rules)
         derivable_facts = set()
         for rule in rules:
             derivable_facts.add(rule.conclusion)
 
-        # Find facts that need to be asked (not derivable, not already known)
-        askable_facts = all_condition_facts - derivable_facts - self.facts.keys()
+        # ルールを優先度順にソート（高い優先度から）
+        sorted_rules = sorted(rules, key=lambda r: r.priority, reverse=True)
 
-        if not askable_facts:
-            return None
+        # 各ルールの条件を順番にチェック
+        for rule in sorted_rules:
+            for condition in rule.conditions:
+                fact_name = condition.fact_name
 
-        # Prioritize by question priority
-        prioritized_facts = []
-        for fact in askable_facts:
-            question = self.db.query(Question).filter(Question.fact_name == fact).first()
-            priority = question.priority if question else 0
-            prioritized_facts.append((fact, priority))
+                # 既に分かっている事実はスキップ
+                if fact_name in self.facts:
+                    continue
 
-        # Sort by priority (higher first)
-        prioritized_facts.sort(key=lambda x: x[1], reverse=True)
+                # 導出可能な事実はスキップ
+                if fact_name in derivable_facts:
+                    continue
 
-        return prioritized_facts[0][0] if prioritized_facts else None
+                # この事実を質問として返す
+                return fact_name
+
+        # 全ての条件が判明している場合
+        return None
 
     def get_conclusions(self) -> List[str]:
         """Get all derived conclusions"""
