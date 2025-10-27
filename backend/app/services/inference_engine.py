@@ -107,6 +107,7 @@ class InferenceEngine:
         次に質問すべき事実を選択
         ルールの優先度順に、条件を順番に質問していく
         導出可能な事実は質問しない
+        発火不可能なルールはスキップする
         """
         rules = self._get_applicable_rules()
 
@@ -120,6 +121,10 @@ class InferenceEngine:
 
         # 各ルールの条件を順番にチェック
         for rule in sorted_rules:
+            # このルールがまだ発火可能かチェック
+            if not self._is_rule_potentially_fireable(rule):
+                continue  # 発火不可能なルールはスキップ
+
             for condition in rule.conditions:
                 fact_name = condition.fact_name
 
@@ -136,6 +141,28 @@ class InferenceEngine:
 
         # 全ての条件が判明している場合
         return None
+
+    def _is_rule_potentially_fireable(self, rule: Rule) -> bool:
+        """
+        ルールがまだ発火可能かチェック
+        AND: 1つでもFalseなら発火不可能
+        OR: 1つでもTrueなら発火確定（残りの条件は不要）
+        """
+        if rule.operator == "AND":
+            # ANDの場合、1つでも条件が満たされていなければ発火不可能
+            for condition in rule.conditions:
+                if condition.fact_name in self.facts:
+                    if self.facts[condition.fact_name] != condition.expected_value:
+                        return False  # 発火不可能
+            return True  # まだ発火可能
+
+        else:  # OR
+            # ORの場合、1つでも条件が満たされていれば発火確定
+            for condition in rule.conditions:
+                if condition.fact_name in self.facts:
+                    if self.facts[condition.fact_name] == condition.expected_value:
+                        return False  # もう発火確定なので残りの質問不要
+            return True  # まだどの条件も満たされていない
 
     def get_conclusions(self) -> List[str]:
         """Get all derived conclusions"""
