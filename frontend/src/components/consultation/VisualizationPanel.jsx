@@ -36,7 +36,7 @@ const VisualizationPanel = ({ visualizationData, currentQuestion }) => {
     );
   }
 
-  const { rules, fired_rules } = visualizationData;
+  const { rules, fired_rules, current_question_fact } = visualizationData;
 
   // 発火済みルールの結論を収集
   const firedConclusions = new Set();
@@ -53,9 +53,9 @@ const VisualizationPanel = ({ visualizationData, currentQuestion }) => {
       condition => condition.status !== 'unknown'
     );
 
-    // 現在の質問に関連
-    const relatedToCurrentQuestion = currentQuestion && rule.conditions.some(
-      condition => condition.fact_name === currentQuestion
+    // 現在の質問に関連（fact_nameで比較）
+    const relatedToCurrentQuestion = current_question_fact && rule.conditions.some(
+      condition => condition.fact_name === current_question_fact
     );
 
     // 発火済みルールの結論を条件として使用している（波及）
@@ -72,7 +72,7 @@ const VisualizationPanel = ({ visualizationData, currentQuestion }) => {
     // 発火不可能なルールを先にチェック
     if (!rule.is_fireable) return 'unfireable';
 
-    if (currentQuestion && rule.conditions.some(c => c.fact_name === currentQuestion)) {
+    if (current_question_fact && rule.conditions.some(c => c.fact_name === current_question_fact)) {
       return 'current';
     }
     const hasEvaluatedCondition = rule.conditions.some(

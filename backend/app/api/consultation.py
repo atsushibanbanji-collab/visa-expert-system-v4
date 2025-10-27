@@ -11,6 +11,7 @@ router = APIRouter(prefix="/consultation", tags=["consultation"])
 _current_engine = None
 _question_history = []
 _visa_type = None
+_current_question_fact = None
 
 
 @router.post("/start", response_model=schemas.ConsultationResponse)
@@ -19,7 +20,7 @@ async def start_consultation(
     db: Session = Depends(get_db),
 ):
     """診断を開始"""
-    global _current_engine, _question_history, _visa_type
+    global _current_engine, _question_history, _visa_type, _current_question_fact
 
     _visa_type = request_data.visa_type
     _current_engine = InferenceEngine(db, request_data.visa_type)
@@ -27,6 +28,7 @@ async def start_consultation(
 
     # Get first question
     next_question_fact = _current_engine.get_next_question()
+    _current_question_fact = next_question_fact
     next_question = None
 
     if next_question_fact:
@@ -47,7 +49,7 @@ async def answer_question(
     db: Session = Depends(get_db),
 ):
     """質問に回答"""
-    global _current_engine, _question_history
+    global _current_engine, _question_history, _current_question_fact
 
     if not _current_engine:
         raise HTTPException(status_code=404, detail="Session not found. Please start consultation first.")
@@ -62,6 +64,7 @@ async def answer_question(
 
     # Get next question
     next_question_fact = _current_engine.get_next_question()
+    _current_question_fact = next_question_fact
     next_question = None
 
     if next_question_fact:
@@ -84,13 +87,17 @@ async def answer_question(
 @router.post("/back")
 async def go_back(db: Session = Depends(get_db)):
     """前の質問に戻る"""
-    global _current_engine, _question_history
+    global _current_engine, _question_history, _current_question_fact
 
     if not _current_engine:
         raise HTTPException(status_code=404, detail="Session not found. Please start consultation first.")
 
     if len(_question_history) <= 1:
-        return {"current_question": _question_history[0] if _question_history else None}
+        current_question = _question_history[0] if _question_history else None
+        if current_question:
+            question = db.query(Question).filter(Question.question_text == current_question).first()
+            _current_question_fact = question.fact_name if question else current_question
+        return {"current_question": current_question}
 
     # Remove last question
     last_question = _question_history.pop()
@@ -104,17 +111,23 @@ async def go_back(db: Session = Depends(get_db)):
     # Return current question
     current_question = _question_history[-1] if _question_history else None
 
+    # Update current question fact
+    if current_question:
+        question = db.query(Question).filter(Question.question_text == current_question).first()
+        _current_question_fact = question.fact_name if question else current_question
+
     return {"current_question": current_question}
 
 
 @router.get("/visualization", response_model=schemas.VisualizationResponse)
 async def get_visualization():
     """推論過程の可視化データを取得"""
-    global _current_engine
+    global _current_engine, _current_question_fact
 
     if not _current_engine:
         # Return empty visualization if no session
-        return schemas.VisualizationResponse(rules=[], fired_rules=[])
+        return schemas.VisualizationResponse(rules=[], fired_rules=[], current_question_fact=None)
 
     result = _current_engine.get_rule_visualization()
+    result["current_question_fact"] = _current_question_fact
     return schemas.VisualizationResponse(**result)

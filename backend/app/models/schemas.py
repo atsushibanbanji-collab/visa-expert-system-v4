@@ -38,6 +38,7 @@ class VisualizationRule(BaseModel):
 class VisualizationResponse(BaseModel):
     rules: List[VisualizationRule]
     fired_rules: List[str] = []
+    current_question_fact: Optional[str] = None
 
 
 # Admin Schemas
