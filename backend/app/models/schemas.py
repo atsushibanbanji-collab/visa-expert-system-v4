@@ -32,6 +32,7 @@ class VisualizationRule(BaseModel):
     conclusion: str
     conclusion_derived: bool = False
     is_fired: bool = False
+    is_fireable: bool = True
 
 
 class VisualizationResponse(BaseModel):

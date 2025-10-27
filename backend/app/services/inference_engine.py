@@ -185,14 +185,24 @@ class InferenceEngine:
 
         for rule in rules:
             conditions_viz = []
+            has_not_satisfied = False
+            has_satisfied = False
+            all_known = True
+
             for condition in rule.conditions:
                 # Determine condition status
                 if condition.fact_name in self.facts:
                     expected = condition.expected_value
                     actual = self.facts[condition.fact_name]
                     status = "satisfied" if actual == expected else "not_satisfied"
+
+                    if status == "satisfied":
+                        has_satisfied = True
+                    else:
+                        has_not_satisfied = True
                 else:
                     status = "unknown"
+                    all_known = False
 
                 # Check if this condition is derivable
                 is_derivable = any(
@@ -208,6 +218,17 @@ class InferenceEngine:
             # Check if conclusion is derived
             conclusion_derived = rule.conclusion in self.facts and self.facts[rule.conclusion] == rule.conclusion_value
 
+            # Determine if rule is still fireable
+            is_fireable = True
+            if rule.operator == "AND":
+                # AND: 1つでもnot_satisfiedがあれば発火不可能
+                if has_not_satisfied:
+                    is_fireable = False
+            else:  # OR
+                # OR: 全ての既知の条件がnot_satisfiedで、かつ1つも満たされていない場合は発火不可能
+                if all_known and not has_satisfied:
+                    is_fireable = False
+
             visualization_rules.append({
                 "rule_id": rule.rule_id,
                 "conditions": conditions_viz,
@@ -215,6 +236,7 @@ class InferenceEngine:
                 "conclusion": rule.conclusion,
                 "conclusion_derived": conclusion_derived,
                 "is_fired": rule.rule_id in self.fired_rules,
+                "is_fireable": is_fireable,
             })
 
         return {

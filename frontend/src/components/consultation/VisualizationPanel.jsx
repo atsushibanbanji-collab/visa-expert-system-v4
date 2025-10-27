@@ -51,6 +51,10 @@ const VisualizationPanel = ({ visualizationData, currentQuestion }) => {
 
   const getRuleState = (rule) => {
     if (rule.is_fired) return 'fired';
+
+    // 発火不可能なルールを先にチェック
+    if (!rule.is_fireable) return 'unfireable';
+
     if (currentQuestion && rule.conditions.some(c => c.fact_name === currentQuestion)) {
       return 'current';
     }
@@ -97,18 +101,21 @@ const VisualizationPanel = ({ visualizationData, currentQuestion }) => {
                 fired: 'border-blue-500 bg-blue-50',
                 current: 'border-yellow-400 bg-yellow-50',
                 evaluating: 'border-orange-300 bg-orange-50',
+                unfireable: 'border-red-300 bg-red-50 opacity-60',
                 pending: 'border-gray-200 bg-white'
               };
               const badgeStyles = {
                 fired: 'bg-blue-600 text-white',
                 current: 'bg-yellow-500 text-white',
                 evaluating: 'bg-orange-400 text-white',
+                unfireable: 'bg-red-600 text-white',
                 pending: 'bg-gray-400 text-white'
               };
               const badgeText = {
                 fired: '発火済み',
                 current: '今の質問に関係',
                 evaluating: '推論中',
+                unfireable: '発火不可能',
                 pending: '未評価'
               };
 
