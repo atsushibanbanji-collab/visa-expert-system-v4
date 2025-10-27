@@ -14,7 +14,7 @@ const DiagnosisPanel = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-8 h-full max-h-[calc(100vh-250px)] flex flex-col overflow-hidden">
+    <div className="bg-white rounded-lg shadow-lg p-8 h-full flex flex-col overflow-hidden">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-navy-900 mb-2">
           ビザ選定診断

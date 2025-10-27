@@ -91,6 +91,12 @@ const VisualizationPanel = ({ visualizationData, currentQuestion }) => {
     return isRelevant;
   });
 
+  // デバッグ: フィルタリング後のルール数
+  console.log('📊 Relevant Rules:', {
+    total: relevantRules.length,
+    rule_ids: relevantRules.map(r => r.rule_id)
+  });
+
   const getRuleState = (rule) => {
     if (rule.is_fired) return 'fired';
 
@@ -108,7 +114,7 @@ const VisualizationPanel = ({ visualizationData, currentQuestion }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 flex flex-col h-full max-h-[calc(100vh-250px)]">
+    <div className="bg-white rounded-lg shadow-lg p-6 flex flex-col h-full overflow-hidden">
       <div className="flex-shrink-0 mb-4">
         <h2 className="text-2xl font-bold text-navy-900 mb-4">
           推論過程の可視化

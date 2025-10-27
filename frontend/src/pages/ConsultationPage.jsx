@@ -126,7 +126,7 @@ function ConsultationPage() {
           <VisaTypeSelection onSelectVisaType={startConsultation} />
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-250px)]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-[500px] max-h-[calc(100vh-250px)]">
           <div className="h-full">
             {loading && questionHistory.length === 0 ? (
               <div className="bg-white rounded-lg shadow-lg p-8 h-full flex items-center justify-center">
