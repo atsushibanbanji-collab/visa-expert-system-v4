@@ -38,15 +38,32 @@ const VisualizationPanel = ({ visualizationData, currentQuestion }) => {
 
   const { rules, fired_rules } = visualizationData;
 
+  // 発火済みルールの結論を収集
+  const firedConclusions = new Set();
+  rules.filter(r => r.is_fired).forEach(r => {
+    firedConclusions.add(r.conclusion);
+  });
+
   const relevantRules = rules.filter(rule => {
+    // 発火済みのルール
     if (rule.is_fired) return true;
+
+    // 条件の一部が評価済み
     const hasEvaluatedCondition = rule.conditions.some(
       condition => condition.status !== 'unknown'
     );
+
+    // 現在の質問に関連
     const relatedToCurrentQuestion = currentQuestion && rule.conditions.some(
       condition => condition.fact_name === currentQuestion
     );
-    return hasEvaluatedCondition || relatedToCurrentQuestion;
+
+    // 発火済みルールの結論を条件として使用している（波及）
+    const usesFiredConclusion = rule.conditions.some(
+      condition => firedConclusions.has(condition.fact_name)
+    );
+
+    return hasEvaluatedCondition || relatedToCurrentQuestion || usesFiredConclusion;
   });
 
   const getRuleState = (rule) => {
