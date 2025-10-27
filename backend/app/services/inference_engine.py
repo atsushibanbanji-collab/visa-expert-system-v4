@@ -108,6 +108,7 @@ class InferenceEngine:
         ルールの優先度順に、条件を順番に質問していく
         導出可能な事実は質問しない
         発火不可能なルールはスキップする
+        最終結論が不可能になったら診断を終了
         """
         rules = self._get_applicable_rules()
 
@@ -118,6 +119,17 @@ class InferenceEngine:
 
         # ルールを優先度順にソート（高い優先度から）
         sorted_rules = sorted(rules, key=lambda r: r.priority, reverse=True)
+
+        # 最終結論のルール（最も優先度が高く、「での申請ができます」が含まれる）を特定
+        final_conclusion_rule = None
+        for rule in sorted_rules:
+            if "での申請ができます" in rule.conclusion:
+                final_conclusion_rule = rule
+                break
+
+        # 最終結論のルールが発火不可能になったら診断を終了
+        if final_conclusion_rule and not self._is_rule_potentially_fireable(final_conclusion_rule):
+            return None  # 診断終了
 
         # 各ルールの条件を順番にチェック
         for rule in sorted_rules:
