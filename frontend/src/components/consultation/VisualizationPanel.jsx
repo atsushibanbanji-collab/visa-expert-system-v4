@@ -38,6 +38,13 @@ const VisualizationPanel = ({ visualizationData, currentQuestion }) => {
 
   const { rules, fired_rules, current_question_fact } = visualizationData;
 
+  // デバッグ用
+  console.log('🔍 Debug Info:', {
+    current_question_fact,
+    total_rules: rules.length,
+    fired_rules: fired_rules.length
+  });
+
   // 発火済みルールの結論を収集
   const firedConclusions = new Set();
   rules.filter(r => r.is_fired).forEach(r => {
@@ -63,7 +70,25 @@ const VisualizationPanel = ({ visualizationData, currentQuestion }) => {
       condition => firedConclusions.has(condition.fact_name)
     );
 
-    return hasEvaluatedCondition || relatedToCurrentQuestion || usesFiredConclusion;
+    const isRelevant = hasEvaluatedCondition || relatedToCurrentQuestion || usesFiredConclusion;
+
+    // デバッグ: ルール3の情報を出力
+    if (rule.rule_id === 'rule_3') {
+      console.log('📋 Rule 3 Debug:', {
+        rule_id: rule.rule_id,
+        hasEvaluatedCondition,
+        relatedToCurrentQuestion,
+        usesFiredConclusion,
+        isRelevant,
+        conditions: rule.conditions.map(c => ({
+          fact_name: c.fact_name,
+          status: c.status,
+          matches_current: c.fact_name === current_question_fact
+        }))
+      });
+    }
+
+    return isRelevant;
   });
 
   const getRuleState = (rule) => {
