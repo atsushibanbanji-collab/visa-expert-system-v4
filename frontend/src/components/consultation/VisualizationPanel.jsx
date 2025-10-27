@@ -51,6 +51,16 @@ const VisualizationPanel = ({ visualizationData, currentQuestion }) => {
     firedConclusions.add(r.conclusion);
   });
 
+  // 現在の質問に関連する（発火可能な）ルールの結論も収集
+  const potentialConclusions = new Set([...firedConclusions]);
+  rules.filter(r =>
+    r.is_fireable &&
+    current_question_fact &&
+    r.conditions.some(c => c.fact_name === current_question_fact)
+  ).forEach(r => {
+    potentialConclusions.add(r.conclusion);
+  });
+
   const relevantRules = rules.filter(rule => {
     // 発火済みのルール
     if (rule.is_fired) return true;
@@ -65,25 +75,27 @@ const VisualizationPanel = ({ visualizationData, currentQuestion }) => {
       condition => condition.fact_name === current_question_fact
     );
 
-    // 発火済みルールの結論を条件として使用している（波及）
-    const usesFiredConclusion = rule.conditions.some(
-      condition => firedConclusions.has(condition.fact_name)
+    // 発火済み or 発火可能なルールの結論を条件として使用している（波及）
+    const usesPotentialConclusion = rule.conditions.some(
+      condition => potentialConclusions.has(condition.fact_name)
     );
 
-    const isRelevant = hasEvaluatedCondition || relatedToCurrentQuestion || usesFiredConclusion;
+    const isRelevant = hasEvaluatedCondition || relatedToCurrentQuestion || usesPotentialConclusion;
 
-    // デバッグ: ルール3の情報を出力
-    if (rule.rule_id === 'rule_3') {
-      console.log('📋 Rule 3 Debug:', {
+    // デバッグ: ルール2とルール3の情報を出力
+    if (rule.rule_id === 'rule_2' || rule.rule_id === 'rule_3') {
+      console.log(`📋 ${rule.rule_id} Debug:`, {
         rule_id: rule.rule_id,
         hasEvaluatedCondition,
         relatedToCurrentQuestion,
-        usesFiredConclusion,
+        usesPotentialConclusion,
         isRelevant,
+        conclusion: rule.conclusion,
         conditions: rule.conditions.map(c => ({
           fact_name: c.fact_name,
           status: c.status,
-          matches_current: c.fact_name === current_question_fact
+          matches_current: c.fact_name === current_question_fact,
+          in_potential: potentialConclusions.has(c.fact_name)
         }))
       });
     }
