@@ -33,12 +33,12 @@ const VisaTypeSelection = ({ onSelectVisaType }) => {
           <button
             key={visa.type}
             onClick={() => onSelectVisaType(visa.type)}
-            className="group bg-gradient-to-br from-navy-50 to-white border-2 border-navy-200 hover:border-navy-600 hover:shadow-xl rounded-xl p-6 text-left transition-all duration-200 transform hover:scale-105"
+            className="group bg-gradient-to-br from-navy-50 to-white border-2 border-navy-200 hover:border-navy-600 hover:shadow-xl rounded-xl p-6 text-left transition-all duration-200 transform hover:scale-105 flex flex-col min-h-[200px]"
           >
-            <h3 className="text-xl font-bold text-navy-900 mb-2 group-hover:text-navy-600">
+            <h3 className="text-lg font-bold text-navy-900 mb-3 group-hover:text-navy-600 whitespace-nowrap">
               {visa.title}
             </h3>
-            <p className="text-gray-600 text-sm leading-relaxed">
+            <p className="text-gray-600 text-sm leading-relaxed flex-1">
               {visa.description}
             </p>
             <div className="mt-4 text-navy-600 font-semibold text-sm flex items-center">
