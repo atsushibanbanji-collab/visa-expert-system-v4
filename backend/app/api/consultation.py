@@ -105,29 +105,30 @@ async def go_back(db: Session = Depends(get_db)):
     # Return current question
     current_question = _question_history[-1] if _question_history else None
 
-    # Remove facts without triggering forward_chain multiple times
-    facts_to_remove = []
+    # Get fact names for questions that should remain (excluding current question)
+    # Current question will be re-asked, so we don't keep its fact
+    facts_to_keep = set()
+    for q_text in _question_history[:-1] if len(_question_history) > 0 else []:
+        q = db.query(Question).filter(Question.question_text == q_text).first()
+        if q:
+            facts_to_keep.add(q.fact_name)
 
-    # Get last question's fact name
-    question = db.query(Question).filter(Question.question_text == last_question).first()
-    if question:
-        facts_to_remove.append(question.fact_name)
-
-    # Get current question's fact name (to allow fresh answer)
+    # Update current question fact
     if current_question:
         question = db.query(Question).filter(Question.question_text == current_question).first()
         _current_question_fact = question.fact_name if question else current_question
-        if question and question.fact_name in _current_engine.facts:
-            facts_to_remove.append(question.fact_name)
 
-    # Remove all facts at once, then forward_chain once
-    for fact_name in facts_to_remove:
-        if fact_name in _current_engine.facts:
-            del _current_engine.facts[fact_name]
-        if fact_name in _current_engine.asked_questions:
-            _current_engine.asked_questions.remove(fact_name)
+    # Keep only the facts from questions in history (before current question)
+    # Remove all other facts including derived facts
+    facts_snapshot = dict(_current_engine.facts)  # Copy to avoid modification during iteration
+    for fact_name in facts_snapshot:
+        if fact_name not in facts_to_keep:
+            if fact_name in _current_engine.facts:
+                del _current_engine.facts[fact_name]
+            if fact_name in _current_engine.asked_questions:
+                _current_engine.asked_questions.remove(fact_name)
 
-    # Clear derived facts and fired rules
+    # Clear derived facts and fired rules (including cascading rules)
     _current_engine.derived_facts.clear()
     _current_engine.fired_rules.clear()
 
