@@ -102,21 +102,37 @@ async def go_back(db: Session = Depends(get_db)):
     # Remove last question
     last_question = _question_history.pop()
 
-    # Get fact name and remove it
-    question = db.query(Question).filter(Question.question_text == last_question).first()
-    if question:
-        _current_engine.remove_fact(question.fact_name)
-
     # Return current question
     current_question = _question_history[-1] if _question_history else None
 
-    # Update current question fact and remove its fact (so user can answer fresh)
+    # Remove facts without triggering forward_chain multiple times
+    facts_to_remove = []
+
+    # Get last question's fact name
+    question = db.query(Question).filter(Question.question_text == last_question).first()
+    if question:
+        facts_to_remove.append(question.fact_name)
+
+    # Get current question's fact name (to allow fresh answer)
     if current_question:
         question = db.query(Question).filter(Question.question_text == current_question).first()
         _current_question_fact = question.fact_name if question else current_question
-        # Remove the current question's fact so visualization shows clean state
         if question and question.fact_name in _current_engine.facts:
-            _current_engine.remove_fact(question.fact_name)
+            facts_to_remove.append(question.fact_name)
+
+    # Remove all facts at once, then forward_chain once
+    for fact_name in facts_to_remove:
+        if fact_name in _current_engine.facts:
+            del _current_engine.facts[fact_name]
+        if fact_name in _current_engine.asked_questions:
+            _current_engine.asked_questions.remove(fact_name)
+
+    # Clear derived facts and fired rules
+    _current_engine.derived_facts.clear()
+    _current_engine.fired_rules.clear()
+
+    # Re-derive facts from remaining known facts (only once)
+    _current_engine.forward_chain()
 
     return {"current_question": current_question}
 
