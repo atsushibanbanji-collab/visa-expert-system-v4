@@ -169,14 +169,19 @@ class InferenceEngine:
 
             # 導出可能な事実の場合、それを導出するルールを先に評価
             if fact_name in derivable_facts:
-                # この事実を導出するルールを見つける
-                deriving_rule = next((r for r in all_rules if r.conclusion == fact_name), None)
-                if deriving_rule and self._is_rule_potentially_fireable(deriving_rule):
-                    # 再帰的にそのルールの質問を取得
-                    nested_question = self._get_next_question_for_rule(deriving_rule, derivable_facts, all_rules)
-                    if nested_question:
-                        return nested_question
-                # 導出ルールの質問がない場合（全条件が既知）、次の条件へ
+                # この事実を導出する全てのルールを見つける（優先度順）
+                deriving_rules = [r for r in all_rules if r.conclusion == fact_name]
+                deriving_rules = sorted(deriving_rules, key=lambda r: r.priority, reverse=True)
+
+                # 各導出ルールを順番に評価
+                for deriving_rule in deriving_rules:
+                    if self._is_rule_potentially_fireable(deriving_rule):
+                        # 再帰的にそのルールの質問を取得
+                        nested_question = self._get_next_question_for_rule(deriving_rule, derivable_facts, all_rules)
+                        if nested_question:
+                            return nested_question
+
+                # 全ての導出ルールの質問がない場合（全条件が既知または全て発火不可能）、次の条件へ
                 continue
 
             # 導出不可能な条件なので質問として返す
