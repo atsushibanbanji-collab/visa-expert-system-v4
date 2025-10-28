@@ -45,6 +45,22 @@ const VisualizationPanel = ({ visualizationData, currentQuestion }) => {
     fired_rules: fired_rules.length
   });
 
+  // 発火済みルールの結論を収集
+  const firedConclusions = new Set();
+  rules.filter(r => r.is_fired).forEach(r => {
+    firedConclusions.add(r.conclusion);
+  });
+
+  // 現在の質問に関連する（発火可能な）ルールの結論も収集
+  const potentialConclusions = new Set([...firedConclusions]);
+  rules.filter(r =>
+    r.is_fireable &&
+    current_question_fact &&
+    r.conditions.some(c => c.fact_name === current_question_fact)
+  ).forEach(r => {
+    potentialConclusions.add(r.conclusion);
+  });
+
   // 推論中と発火済みのルールのみを表示
   const relevantRules = rules.filter(rule => {
     // 発火済みのルール
@@ -60,8 +76,13 @@ const VisualizationPanel = ({ visualizationData, currentQuestion }) => {
       condition => condition.fact_name === current_question_fact
     );
 
+    // 発火済み or 発火可能なルールの結論を条件として使用している（推論中・波及）
+    const usesPotentialConclusion = rule.conditions.some(
+      condition => potentialConclusions.has(condition.fact_name)
+    );
+
     // 推論中のルール
-    return hasEvaluatedCondition || relatedToCurrentQuestion;
+    return hasEvaluatedCondition || relatedToCurrentQuestion || usesPotentialConclusion;
   });
 
   // デバッグ: フィルタリング後のルール数
