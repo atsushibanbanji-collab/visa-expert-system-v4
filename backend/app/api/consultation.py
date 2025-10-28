@@ -106,15 +106,17 @@ async def go_back(db: Session = Depends(get_db)):
     question = db.query(Question).filter(Question.question_text == last_question).first()
     if question:
         _current_engine.remove_fact(question.fact_name)
-        _current_engine.forward_chain()
 
     # Return current question
     current_question = _question_history[-1] if _question_history else None
 
-    # Update current question fact
+    # Update current question fact and remove its fact (so user can answer fresh)
     if current_question:
         question = db.query(Question).filter(Question.question_text == current_question).first()
         _current_question_fact = question.fact_name if question else current_question
+        # Remove the current question's fact so visualization shows clean state
+        if question and question.fact_name in _current_engine.facts:
+            _current_engine.remove_fact(question.fact_name)
 
     return {"current_question": current_question}
 
