@@ -45,62 +45,23 @@ const VisualizationPanel = ({ visualizationData, currentQuestion }) => {
     fired_rules: fired_rules.length
   });
 
-  // 発火済みルールの結論を収集
-  const firedConclusions = new Set();
-  rules.filter(r => r.is_fired).forEach(r => {
-    firedConclusions.add(r.conclusion);
-  });
-
-  // 現在の質問に関連する（発火可能な）ルールの結論も収集
-  const potentialConclusions = new Set([...firedConclusions]);
-  rules.filter(r =>
-    r.is_fireable &&
-    current_question_fact &&
-    r.conditions.some(c => c.fact_name === current_question_fact)
-  ).forEach(r => {
-    potentialConclusions.add(r.conclusion);
-  });
-
+  // 推論中と発火済みのルールのみを表示
   const relevantRules = rules.filter(rule => {
     // 発火済みのルール
     if (rule.is_fired) return true;
 
-    // 条件の一部が評価済み
+    // 条件の一部が評価済み（推論中）
     const hasEvaluatedCondition = rule.conditions.some(
       condition => condition.status !== 'unknown'
     );
 
-    // 現在の質問に関連（fact_nameで比較）
+    // 現在の質問に関連（推論中）
     const relatedToCurrentQuestion = current_question_fact && rule.conditions.some(
       condition => condition.fact_name === current_question_fact
     );
 
-    // 発火済み or 発火可能なルールの結論を条件として使用している（波及）
-    const usesPotentialConclusion = rule.conditions.some(
-      condition => potentialConclusions.has(condition.fact_name)
-    );
-
-    const isRelevant = hasEvaluatedCondition || relatedToCurrentQuestion || usesPotentialConclusion;
-
-    // デバッグ: ルール2とルール3の情報を出力
-    if (rule.rule_id === 'rule_2' || rule.rule_id === 'rule_3') {
-      console.log(`📋 ${rule.rule_id} Debug:`, {
-        rule_id: rule.rule_id,
-        hasEvaluatedCondition,
-        relatedToCurrentQuestion,
-        usesPotentialConclusion,
-        isRelevant,
-        conclusion: rule.conclusion,
-        conditions: rule.conditions.map(c => ({
-          fact_name: c.fact_name,
-          status: c.status,
-          matches_current: c.fact_name === current_question_fact,
-          in_potential: potentialConclusions.has(c.fact_name)
-        }))
-      });
-    }
-
-    return isRelevant;
+    // 推論中のルール
+    return hasEvaluatedCondition || relatedToCurrentQuestion;
   });
 
   // デバッグ: フィルタリング後のルール数
@@ -115,13 +76,16 @@ const VisualizationPanel = ({ visualizationData, currentQuestion }) => {
     // 発火不可能なルールを先にチェック
     if (!rule.is_fireable) return 'unfireable';
 
-    if (current_question_fact && rule.conditions.some(c => c.fact_name === current_question_fact)) {
-      return 'current';
-    }
+    // 現在の質問に関連 or 条件の一部が評価済み → 推論中
+    const relatedToCurrentQuestion = current_question_fact && rule.conditions.some(
+      c => c.fact_name === current_question_fact
+    );
     const hasEvaluatedCondition = rule.conditions.some(
       condition => condition.status !== 'unknown'
     );
-    if (hasEvaluatedCondition) return 'evaluating';
+
+    if (relatedToCurrentQuestion || hasEvaluatedCondition) return 'evaluating';
+
     return 'pending';
   };
 
@@ -159,21 +123,18 @@ const VisualizationPanel = ({ visualizationData, currentQuestion }) => {
               const ruleState = getRuleState(rule);
               const stateStyles = {
                 fired: 'border-blue-500 bg-blue-50',
-                current: 'border-yellow-400 bg-yellow-50',
                 evaluating: 'border-orange-300 bg-orange-50',
                 unfireable: 'border-red-300 bg-red-50 opacity-60',
                 pending: 'border-gray-200 bg-white'
               };
               const badgeStyles = {
                 fired: 'bg-blue-600 text-white',
-                current: 'bg-yellow-500 text-white',
                 evaluating: 'bg-orange-400 text-white',
                 unfireable: 'bg-red-600 text-white',
                 pending: 'bg-gray-400 text-white'
               };
               const badgeText = {
                 fired: '発火済み',
-                current: '今の質問に関係',
                 evaluating: '推論中',
                 unfireable: '発火不可能',
                 pending: '未評価'
@@ -182,7 +143,7 @@ const VisualizationPanel = ({ visualizationData, currentQuestion }) => {
               return (
                 <div
                   key={rule.rule_id}
-                  ref={ruleState === 'current' ? currentRuleRef : null}
+                  ref={ruleState === 'evaluating' ? currentRuleRef : null}
                   className={`border-2 rounded-lg p-4 ${stateStyles[ruleState]}`}
                 >
                   <div className="flex items-center justify-between mb-3">
