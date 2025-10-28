@@ -51,7 +51,15 @@ class InferenceEngine:
 
                 can_fire, all_conditions_known = self._can_fire_rule(rule)
 
-                if all_conditions_known and can_fire:
+                # OR条件：1つでも満たされたら即座に発火
+                # AND条件：全ての条件が既知で満たされている時のみ発火
+                should_fire = False
+                if rule.operator == "OR":
+                    should_fire = can_fire  # 1つでも満たされたら発火
+                else:  # AND
+                    should_fire = all_conditions_known and can_fire  # 全条件が既知かつ満たされている
+
+                if should_fire:
                     # Fire the rule
                     self.facts[rule.conclusion] = rule.conclusion_value
                     self.derived_facts.add(rule.conclusion)
