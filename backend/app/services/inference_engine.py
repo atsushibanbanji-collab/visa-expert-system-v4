@@ -105,8 +105,8 @@ class InferenceEngine:
     def get_next_question(self) -> Optional[str]:
         """
         次に質問すべき事実を選択
-        ルールの優先度順に、条件を順番に質問していく
-        導出可能な事実は質問しない
+        ルール単位で完全に検証してから次のルールに進む（深さ優先探索）
+        導出可能な事実がある場合、その事実を導出するルールを先に完全評価
         発火不可能なルールはスキップする
         最終結論が不可能になったら診断を終了
         """
@@ -131,27 +131,50 @@ class InferenceEngine:
         if final_conclusion_rule and not self._is_rule_potentially_fireable(final_conclusion_rule):
             return None  # 診断終了
 
-        # 各ルールの条件を順番にチェック
+        # 現在評価中のルールから質問を取得（深さ優先探索）
         for rule in sorted_rules:
-            # このルールがまだ発火可能かチェック
             if not self._is_rule_potentially_fireable(rule):
-                continue  # 発火不可能なルールはスキップ
+                continue
 
-            for condition in rule.conditions:
-                fact_name = condition.fact_name
-
-                # 既に分かっている事実はスキップ
-                if fact_name in self.facts:
-                    continue
-
-                # 導出可能な事実はスキップ
-                if fact_name in derivable_facts:
-                    continue
-
-                # この事実を質問として返す
-                return fact_name
+            # このルールの次の質問を取得（再帰的に導出可能な条件を解決）
+            next_question = self._get_next_question_for_rule(rule, derivable_facts, rules)
+            if next_question:
+                return next_question
 
         # 全ての条件が判明している場合
+        return None
+
+    def _get_next_question_for_rule(self, rule: Rule, derivable_facts: Set[str], all_rules: List[Rule]) -> Optional[str]:
+        """
+        指定されたルールの次の質問を取得（深さ優先探索）
+        導出可能な条件がある場合、その条件を導出するルールを先に評価
+
+        Returns:
+            次に質問すべきfact_name、またはNone（全条件が既知または導出済み）
+        """
+        for condition in rule.conditions:
+            fact_name = condition.fact_name
+
+            # 既に分かっている事実はスキップ
+            if fact_name in self.facts:
+                continue
+
+            # 導出可能な事実の場合、それを導出するルールを先に評価
+            if fact_name in derivable_facts:
+                # この事実を導出するルールを見つける
+                deriving_rule = next((r for r in all_rules if r.conclusion == fact_name), None)
+                if deriving_rule and self._is_rule_potentially_fireable(deriving_rule):
+                    # 再帰的にそのルールの質問を取得
+                    nested_question = self._get_next_question_for_rule(deriving_rule, derivable_facts, all_rules)
+                    if nested_question:
+                        return nested_question
+                # 導出ルールの質問がない場合（全条件が既知）、次の条件へ
+                continue
+
+            # 導出不可能な条件なので質問として返す
+            return fact_name
+
+        # このルールの全条件が既知または導出可能
         return None
 
     def _is_rule_potentially_fireable(self, rule: Rule) -> bool:
