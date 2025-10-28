@@ -126,8 +126,8 @@ function ConsultationPage() {
           <VisaTypeSelection onSelectVisaType={startConsultation} />
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-[500px] max-h-[calc(100vh-250px)]">
-          <div className="h-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-250px)] overflow-hidden">
+          <div className="h-full overflow-hidden">
             {loading && questionHistory.length === 0 ? (
               <div className="bg-white rounded-lg shadow-lg p-8 h-full flex items-center justify-center">
                 <div className="text-center">
@@ -148,7 +148,7 @@ function ConsultationPage() {
             )}
           </div>
 
-          <div className="h-full">
+          <div className="h-full overflow-hidden">
             <VisualizationPanel
               visualizationData={visualizationData}
               currentQuestion={currentQuestion}
