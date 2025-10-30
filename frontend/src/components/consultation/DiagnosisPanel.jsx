@@ -15,22 +15,22 @@ const DiagnosisPanel = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-4 h-full flex flex-col overflow-hidden">
-      <div className="mb-3">
-        <h1 className="text-xl font-bold text-navy-900">
+    <div className="bg-white rounded-lg shadow-lg p-6 h-full flex flex-col overflow-hidden">
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold text-navy-900">
           ビザ選定診断
         </h1>
       </div>
 
       {/* Progress indicator */}
       {questionHistory.length > 0 && (
-        <div className="mb-3">
-          <p className="text-xs text-gray-500 mb-1">
+        <div className="mb-4">
+          <p className="text-sm text-gray-500 mb-2">
             質問 {questionHistory.length}
           </p>
-          <div className="w-full bg-gray-200 rounded-full h-1.5">
+          <div className="w-full bg-gray-200 rounded-full h-2">
             <div
-              className="bg-navy-600 h-1.5 rounded-full transition-all duration-300"
+              className="bg-navy-600 h-2 rounded-full transition-all duration-300"
               style={{ width: `${Math.min((questionHistory.length / 10) * 100, 100)}%` }}
             ></div>
           </div>
@@ -38,28 +38,28 @@ const DiagnosisPanel = ({
       )}
 
       {/* Question area */}
-      <div className="flex-1 mb-3 overflow-y-auto">
+      <div className="flex-1 mb-2 overflow-y-auto">
         {!isFinished && currentQuestion && (
-          <div className="bg-navy-50 rounded-lg p-4 border-l-4 border-navy-600">
+          <div className="bg-navy-50 rounded-lg p-5 border-l-4 border-navy-600">
             <p className="text-base font-medium text-navy-900 mb-3">
               {currentQuestion}
             </p>
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <button
                 onClick={() => handleAnswer(true)}
-                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-3 rounded-lg transition-colors duration-200 text-sm"
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors duration-200"
               >
                 はい
               </button>
               <button
                 onClick={() => handleAnswer(false)}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-3 rounded-lg transition-colors duration-200 text-sm"
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors duration-200"
               >
                 いいえ
               </button>
               <button
                 onClick={() => handleAnswer(null)}
-                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-3 rounded-lg transition-colors duration-200 text-sm"
+                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors duration-200"
               >
                 分からない
               </button>
@@ -112,7 +112,7 @@ const DiagnosisPanel = ({
       </div>
 
       {/* Navigation buttons */}
-      <div className="flex gap-2">
+      <div className="flex gap-3">
         <button
           onClick={onBack}
           disabled={questionHistory.length <= 1}
