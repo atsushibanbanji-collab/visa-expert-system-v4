@@ -64,10 +64,9 @@ async def answer_question(
         _current_engine.add_fact(fact_name, request_data.answer)
         _current_engine.forward_chain()
     else:
-        # If answer is None ("分からない"), mark as unknown and assume true
+        # If answer is None ("分からない"), mark as unknown but don't assume true yet
+        # Try to derive it from other questions first
         _current_engine.add_unknown_fact(fact_name)
-        _current_engine.add_fact(fact_name, True)  # Assume true for diagnosis
-        _current_engine.forward_chain()
 
     # Get next question
     next_question_fact = _current_engine.get_next_question()
@@ -140,6 +139,7 @@ async def go_back(db: Session = Depends(get_db)):
     _current_engine.derived_facts.clear()
     _current_engine.fired_rules.clear()
     _current_engine.unknown_facts.clear()
+    _current_engine.unknown_assumed = False  # Reset unknown assumption flag
 
     # Re-derive facts from remaining known facts (only once)
     _current_engine.forward_chain()
