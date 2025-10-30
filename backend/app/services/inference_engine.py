@@ -182,9 +182,36 @@ class InferenceEngine:
             if fact_name in self.facts:
                 continue
 
-            # 導出可能な事実の場合、スキップ（「分からない」で回答済みならtrueとして扱われる）
+            # 導出可能な事実の場合
             if fact_name in derivable_facts:
-                continue
+                # この条件を必要とする全てのルールをチェック
+                rules_needing_this = [r for r in all_rules if any(c.fact_name == fact_name for c in r.conditions)]
+                all_satisfied = all(
+                    r.rule_id in self.fired_rules or
+                    (r.conclusion in self.facts and self.facts[r.conclusion] == r.conclusion_value)
+                    for r in rules_needing_this
+                )
+
+                if all_satisfied:
+                    # この条件を使う全てのルールが既に満たされているので、この条件は不要
+                    continue
+                else:
+                    # まだ評価中のルールがあるので、この条件を導出する必要がある
+                    # 深さ優先で、この条件を導出するルールの質問に進む
+                    deriving_rules = [r for r in all_rules if r.conclusion == fact_name]
+                    deriving_rules = sorted(deriving_rules, key=lambda r: r.priority, reverse=True)
+                    for deriving_rule in deriving_rules:
+                        # 既に発火済みまたは結論導出済みならスキップ
+                        if deriving_rule.rule_id in self.fired_rules:
+                            continue
+                        if deriving_rule.conclusion in self.facts and self.facts[deriving_rule.conclusion] == deriving_rule.conclusion_value:
+                            continue
+                        if self._is_rule_potentially_fireable(deriving_rule):
+                            nested_question = self._get_next_question_for_rule(deriving_rule, derivable_facts, all_rules)
+                            if nested_question:
+                                return nested_question
+                    # この条件を導出できない場合はスキップ
+                    continue
 
             # 導出不可能な条件なので質問として返す
             return fact_name
