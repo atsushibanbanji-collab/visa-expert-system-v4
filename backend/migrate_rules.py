@@ -9,7 +9,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from app.models.database import SessionLocal, init_db
-from app.models.models import Rule, Condition, Question
+from app.models.models import Rule, Condition, Question, RuleHistory
 
 
 def auto_detect_visa_type(rule_data: dict) -> str:
@@ -38,9 +38,10 @@ def load_rules_from_json(json_file: str):
     db = SessionLocal()
 
     try:
-        # Clear existing data
+        # Clear existing data (must delete in correct order due to foreign keys)
         print("Clearing existing data...")
         db.query(Condition).delete()
+        db.query(RuleHistory).delete()  # Delete rule_history before rules
         db.query(Rule).delete()
         db.query(Question).delete()
         db.commit()
