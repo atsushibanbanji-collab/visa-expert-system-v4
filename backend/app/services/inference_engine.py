@@ -174,27 +174,9 @@ class InferenceEngine:
             if fact_name in self.facts:
                 continue
 
-            # 導出可能な事実の場合、まず直接質問するか判断
+            # 導出可能な事実の場合、スキップ（「分からない」で回答済みならtrueとして扱われる）
             if fact_name in derivable_facts:
-                # ユーザーが「分からない」と回答済みの場合、導出ルールの条件を質問
-                if fact_name in self.unknown_facts:
-                    # この事実を導出する全てのルールを見つける（優先度順）
-                    deriving_rules = [r for r in all_rules if r.conclusion == fact_name]
-                    deriving_rules = sorted(deriving_rules, key=lambda r: r.priority, reverse=True)
-
-                    # 各導出ルールを順番に評価
-                    for deriving_rule in deriving_rules:
-                        if self._is_rule_potentially_fireable(deriving_rule):
-                            # 再帰的にそのルールの質問を取得
-                            nested_question = self._get_next_question_for_rule(deriving_rule, derivable_facts, all_rules)
-                            if nested_question:
-                                return nested_question
-
-                    # 全ての導出ルールの質問がない場合、次の条件へ
-                    continue
-                else:
-                    # まだ質問していない導出可能なfactは先に直接質問
-                    return fact_name
+                continue
 
             # 導出不可能な条件なので質問として返す
             return fact_name

@@ -4,6 +4,7 @@ const DiagnosisPanel = ({
   onBack,
   onRestart,
   conclusions,
+  unknownFacts,
   isFinished,
   questionHistory
 }) => {
@@ -46,26 +47,24 @@ const DiagnosisPanel = ({
             <p className="text-lg font-medium text-navy-900 mb-4">
               {currentQuestion}
             </p>
-            <div className="flex flex-col gap-3">
-              <div className="flex gap-4">
-                <button
-                  onClick={() => handleAnswer(true)}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
-                >
-                  はい
-                </button>
-                <button
-                  onClick={() => handleAnswer(false)}
-                  className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
-                >
-                  いいえ
-                </button>
-              </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => handleAnswer(true)}
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
+              >
+                はい
+              </button>
+              <button
+                onClick={() => handleAnswer(false)}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
+              >
+                いいえ
+              </button>
               <button
                 onClick={() => handleAnswer(null)}
-                className="w-full bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
               >
-                分からない（詳細質問へ）
+                分からない
               </button>
             </div>
           </div>
@@ -81,7 +80,7 @@ const DiagnosisPanel = ({
                 <p className="text-gray-700 mb-4">
                   以下のビザで申請が可能です:
                 </p>
-                <ul className="space-y-2">
+                <ul className="space-y-2 mb-4">
                   {conclusions.map((conclusion, index) => (
                     <li
                       key={index}
@@ -93,6 +92,18 @@ const DiagnosisPanel = ({
                     </li>
                   ))}
                 </ul>
+                {unknownFacts && unknownFacts.length > 0 && (
+                  <div className="bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-500">
+                    <p className="text-sm font-semibold text-yellow-900 mb-2">
+                      ※ 以下の条件については「分からない」と回答されているため、これらが満たされている前提での結果です：
+                    </p>
+                    <ul className="list-disc list-inside space-y-1 text-sm text-yellow-800">
+                      {unknownFacts.map((fact, index) => (
+                        <li key={index}>{fact}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             ) : (
               <p className="text-gray-700">

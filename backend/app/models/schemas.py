@@ -17,6 +17,7 @@ class ConsultationResponse(BaseModel):
     next_question: Optional[str] = None
     conclusions: List[str] = []
     is_finished: bool = False
+    unknown_facts: List[str] = []  # Facts answered as "分からない"
 
 
 class VisualizationCondition(BaseModel):

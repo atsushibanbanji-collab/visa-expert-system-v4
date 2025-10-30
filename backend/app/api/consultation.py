@@ -39,7 +39,8 @@ async def start_consultation(
     return schemas.ConsultationResponse(
         next_question=next_question,
         conclusions=[],
-        is_finished=next_question is None
+        is_finished=next_question is None,
+        unknown_facts=list(_current_engine.unknown_facts)
     )
 
 
@@ -58,13 +59,15 @@ async def answer_question(
     question = db.query(Question).filter(Question.question_text == request_data.question).first()
     fact_name = question.fact_name if question else request_data.question
 
-    # Add fact and run forward chaining (unless answer is None = "分からない")
+    # Add fact and run forward chaining
     if request_data.answer is not None:
         _current_engine.add_fact(fact_name, request_data.answer)
         _current_engine.forward_chain()
     else:
-        # If answer is None ("分からない"), mark as unknown and let the system derive it
+        # If answer is None ("分からない"), mark as unknown and assume true
         _current_engine.add_unknown_fact(fact_name)
+        _current_engine.add_fact(fact_name, True)  # Assume true for diagnosis
+        _current_engine.forward_chain()
 
     # Get next question
     next_question_fact = _current_engine.get_next_question()
@@ -84,7 +87,8 @@ async def answer_question(
     return schemas.ConsultationResponse(
         next_question=next_question,
         conclusions=conclusions,
-        is_finished=is_finished
+        is_finished=is_finished,
+        unknown_facts=list(_current_engine.unknown_facts)
     )
 
 

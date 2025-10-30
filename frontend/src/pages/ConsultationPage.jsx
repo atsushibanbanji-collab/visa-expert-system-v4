@@ -9,6 +9,7 @@ function ConsultationPage() {
   const [selectedVisaType, setSelectedVisaType] = useState(null)
   const [currentQuestion, setCurrentQuestion] = useState(null)
   const [conclusions, setConclusions] = useState([])
+  const [unknownFacts, setUnknownFacts] = useState([])
   const [isFinished, setIsFinished] = useState(false)
   const [visualizationData, setVisualizationData] = useState(null)
   const [questionHistory, setQuestionHistory] = useState([])
@@ -29,6 +30,7 @@ function ConsultationPage() {
       setCurrentQuestion(data.next_question)
       setQuestionHistory(data.next_question ? [data.next_question] : [])
       setConclusions([])
+      setUnknownFacts(data.unknown_facts || [])
       setIsFinished(false)
       await fetchVisualization()
     } catch (err) {
@@ -62,6 +64,7 @@ function ConsultationPage() {
 
       setCurrentQuestion(data.next_question)
       setConclusions(data.conclusions)
+      setUnknownFacts(data.unknown_facts || [])
       setIsFinished(data.is_finished)
 
       if (data.next_question && !questionHistory.includes(data.next_question)) {
@@ -107,6 +110,7 @@ function ConsultationPage() {
     setCurrentQuestion(null)
     setQuestionHistory([])
     setConclusions([])
+    setUnknownFacts([])
     setIsFinished(false)
     setVisualizationData(null)
     setError(null)
@@ -142,6 +146,7 @@ function ConsultationPage() {
                 onBack={handleBack}
                 onRestart={handleRestart}
                 conclusions={conclusions}
+                unknownFacts={unknownFacts}
                 isFinished={isFinished}
                 questionHistory={questionHistory}
               />
