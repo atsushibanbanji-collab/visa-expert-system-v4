@@ -10,7 +10,7 @@ class StartConsultationRequest(BaseModel):
 
 class AnswerRequest(BaseModel):
     question: str
-    answer: bool
+    answer: Optional[bool]  # True=はい, False=いいえ, None=分からない
 
 
 class ConsultationResponse(BaseModel):

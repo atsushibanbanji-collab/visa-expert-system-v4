@@ -58,9 +58,13 @@ async def answer_question(
     question = db.query(Question).filter(Question.question_text == request_data.question).first()
     fact_name = question.fact_name if question else request_data.question
 
-    # Add fact and run forward chaining
-    _current_engine.add_fact(fact_name, request_data.answer)
-    _current_engine.forward_chain()
+    # Add fact and run forward chaining (unless answer is None = "分からない")
+    if request_data.answer is not None:
+        _current_engine.add_fact(fact_name, request_data.answer)
+        _current_engine.forward_chain()
+    else:
+        # If answer is None ("分からない"), mark as unknown and let the system derive it
+        _current_engine.add_unknown_fact(fact_name)
 
     # Get next question
     next_question_fact = _current_engine.get_next_question()
@@ -128,9 +132,10 @@ async def go_back(db: Session = Depends(get_db)):
             if fact_name in _current_engine.asked_questions:
                 _current_engine.asked_questions.remove(fact_name)
 
-    # Clear derived facts and fired rules (including cascading rules)
+    # Clear derived facts, fired rules, and unknown facts (including cascading rules)
     _current_engine.derived_facts.clear()
     _current_engine.fired_rules.clear()
+    _current_engine.unknown_facts.clear()
 
     # Re-derive facts from remaining known facts (only once)
     _current_engine.forward_chain()

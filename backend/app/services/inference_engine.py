@@ -13,6 +13,7 @@ class InferenceEngine:
         self.derived_facts: Set[str] = set()  # Facts derived from rules (not asked)
         self.asked_questions: Set[str] = set()  # Questions already asked to user
         self.fired_rules: List[str] = []  # Rules that have been applied
+        self.unknown_facts: Set[str] = set()  # Facts answered as "分からない"
 
     def add_fact(self, fact_name: str, value: bool):
         """Add a fact to the knowledge base"""
@@ -20,12 +21,18 @@ class InferenceEngine:
         if fact_name not in self.asked_questions:
             self.asked_questions.add(fact_name)
 
+    def add_unknown_fact(self, fact_name: str):
+        """Mark a fact as unknown (user answered '分からない')"""
+        self.unknown_facts.add(fact_name)
+
     def remove_fact(self, fact_name: str):
         """Remove a fact and all derived facts that depend on it"""
         if fact_name in self.facts:
             del self.facts[fact_name]
         if fact_name in self.asked_questions:
             self.asked_questions.remove(fact_name)
+        if fact_name in self.unknown_facts:
+            self.unknown_facts.remove(fact_name)
 
         # Remove derived facts that may depend on this
         # This is a simplified approach - clear all derived facts
@@ -167,22 +174,27 @@ class InferenceEngine:
             if fact_name in self.facts:
                 continue
 
-            # 導出可能な事実の場合、それを導出するルールを先に評価
+            # 導出可能な事実の場合、まず直接質問するか判断
             if fact_name in derivable_facts:
-                # この事実を導出する全てのルールを見つける（優先度順）
-                deriving_rules = [r for r in all_rules if r.conclusion == fact_name]
-                deriving_rules = sorted(deriving_rules, key=lambda r: r.priority, reverse=True)
+                # ユーザーが「分からない」と回答済みの場合、導出ルールの条件を質問
+                if fact_name in self.unknown_facts:
+                    # この事実を導出する全てのルールを見つける（優先度順）
+                    deriving_rules = [r for r in all_rules if r.conclusion == fact_name]
+                    deriving_rules = sorted(deriving_rules, key=lambda r: r.priority, reverse=True)
 
-                # 各導出ルールを順番に評価
-                for deriving_rule in deriving_rules:
-                    if self._is_rule_potentially_fireable(deriving_rule):
-                        # 再帰的にそのルールの質問を取得
-                        nested_question = self._get_next_question_for_rule(deriving_rule, derivable_facts, all_rules)
-                        if nested_question:
-                            return nested_question
+                    # 各導出ルールを順番に評価
+                    for deriving_rule in deriving_rules:
+                        if self._is_rule_potentially_fireable(deriving_rule):
+                            # 再帰的にそのルールの質問を取得
+                            nested_question = self._get_next_question_for_rule(deriving_rule, derivable_facts, all_rules)
+                            if nested_question:
+                                return nested_question
 
-                # 全ての導出ルールの質問がない場合（全条件が既知または全て発火不可能）、次の条件へ
-                continue
+                    # 全ての導出ルールの質問がない場合、次の条件へ
+                    continue
+                else:
+                    # まだ質問していない導出可能なfactは先に直接質問
+                    return fact_name
 
             # 導出不可能な条件なので質問として返す
             return fact_name
@@ -190,18 +202,43 @@ class InferenceEngine:
         # このルールの全条件が既知または導出可能
         return None
 
-    def _is_rule_potentially_fireable(self, rule: Rule) -> bool:
+    def _is_rule_potentially_fireable(self, rule: Rule, checked_rules: Set[str] = None) -> bool:
         """
-        ルールがまだ発火可能かチェック
+        ルールがまだ発火可能かチェック（連鎖的な判定）
         AND: 1つでもFalseなら発火不可能
         OR: 1つでもTrueなら発火確定（残りの条件は不要）
+
+        導出可能な条件について、その条件を導出する全てのルールが発火不可能なら、
+        その条件は満たせないため、このルールも発火不可能と判定
         """
+        if checked_rules is None:
+            checked_rules = set()
+
+        # 循環参照を避けるため、既にチェック中のルールは発火可能と仮定
+        if rule.rule_id in checked_rules:
+            return True
+
+        checked_rules.add(rule.rule_id)
+
+        # 全てのルールを取得（導出可能性チェックのため）
+        all_rules = self._get_applicable_rules()
+        derivable_facts = set(r.conclusion for r in all_rules)
+
         if rule.operator == "AND":
             # ANDの場合、1つでも条件が満たされていなければ発火不可能
             for condition in rule.conditions:
                 if condition.fact_name in self.facts:
                     if self.facts[condition.fact_name] != condition.expected_value:
-                        return False  # 発火不可能
+                        return False  # 発火不可能（既知の条件で満たされない）
+                elif condition.fact_name in derivable_facts:
+                    # 導出可能な条件：その条件を導出する全てのルールが発火不可能かチェック
+                    deriving_rules = [r for r in all_rules if r.conclusion == condition.fact_name]
+                    all_unfireable = all(
+                        not self._is_rule_potentially_fireable(r, checked_rules.copy())
+                        for r in deriving_rules
+                    )
+                    if all_unfireable:
+                        return False  # 導出不可能なので発火不可能
             return True  # まだ発火可能
 
         else:  # OR

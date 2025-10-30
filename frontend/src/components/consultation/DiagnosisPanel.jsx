@@ -46,18 +46,26 @@ const DiagnosisPanel = ({
             <p className="text-lg font-medium text-navy-900 mb-4">
               {currentQuestion}
             </p>
-            <div className="flex gap-4">
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-4">
+                <button
+                  onClick={() => handleAnswer(true)}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                >
+                  はい
+                </button>
+                <button
+                  onClick={() => handleAnswer(false)}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                >
+                  いいえ
+                </button>
+              </div>
               <button
-                onClick={() => handleAnswer(true)}
-                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+                onClick={() => handleAnswer(null)}
+                className="w-full bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
               >
-                はい
-              </button>
-              <button
-                onClick={() => handleAnswer(false)}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
-              >
-                いいえ
+                分からない（詳細質問へ）
               </button>
             </div>
           </div>
