@@ -148,6 +148,14 @@ class InferenceEngine:
 
         # 現在評価中のルールから質問を取得（深さ優先探索）
         for rule in sorted_rules:
+            # 既に発火済みのルールはスキップ（全条件を聞く必要なし）
+            if rule.rule_id in self.fired_rules:
+                continue
+
+            # 既に結論が導出済みのルールはスキップ
+            if rule.conclusion in self.facts and self.facts[rule.conclusion] == rule.conclusion_value:
+                continue
+
             if not self._is_rule_potentially_fireable(rule):
                 continue
 
