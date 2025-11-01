@@ -25,6 +25,8 @@ class InferenceEngine:
     def add_unknown_fact(self, fact_name: str):
         """Mark a fact as unknown (user answered '分からない')"""
         self.unknown_facts.add(fact_name)
+        if fact_name not in self.asked_questions:
+            self.asked_questions.add(fact_name)
 
     def remove_fact(self, fact_name: str):
         """Remove a fact and all derived facts that depend on it"""
@@ -240,6 +242,10 @@ class InferenceEngine:
                                 return nested_question
                     # この条件を導出できない場合はスキップ
                     continue
+
+            # 既に「分からない」と回答済みの場合はスキップ（まだ導出を試みる段階）
+            if fact_name in self.unknown_facts and not self.unknown_assumed:
+                continue
 
             # 導出不可能な条件なので質問として返す
             return fact_name
