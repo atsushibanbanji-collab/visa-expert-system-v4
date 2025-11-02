@@ -6,6 +6,7 @@ const DiagnosisPanel = ({
   conclusions,
   unknownFacts,
   isFinished,
+  insufficientInfo,
   questionHistory
 }) => {
   const handleAnswer = (answer) => {
@@ -68,31 +69,19 @@ const DiagnosisPanel = ({
         )}
 
         {isFinished && (
-          <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-600">
-            <h2 className="text-lg font-bold text-green-900 mb-3">
-              診断結果
-            </h2>
-            {conclusions.length > 0 ? (
-              <div>
-                <p className="text-sm text-gray-700 mb-2">
-                  以下のビザで申請が可能です:
+          <div>
+            {insufficientInfo ? (
+              <div className="bg-yellow-50 rounded-lg p-4 border-l-4 border-yellow-600">
+                <h2 className="text-lg font-bold text-yellow-900 mb-3">
+                  診断できませんでした
+                </h2>
+                <p className="text-sm text-gray-700 mb-3">
+                  情報が不足しているため、診断を完了できませんでした。
                 </p>
-                <ul className="space-y-2 mb-3">
-                  {conclusions.map((conclusion, index) => (
-                    <li
-                      key={index}
-                      className="bg-white rounded-lg p-3 shadow border-l-4 border-green-500"
-                    >
-                      <span className="text-base font-semibold text-navy-900">
-                        {conclusion}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
                 {unknownFacts && unknownFacts.length > 0 && (
-                  <div className="bg-yellow-50 rounded-lg p-3 border-l-4 border-yellow-500">
+                  <div className="bg-yellow-100 rounded-lg p-3 border-l-4 border-yellow-500">
                     <p className="text-xs font-semibold text-yellow-900 mb-1">
-                      ※ 以下の条件については「分からない」と回答されているため、これらが満たされている前提での結果です：
+                      以下の条件について「分からない」と回答されています：
                     </p>
                     <ul className="list-disc list-inside space-y-0.5 text-xs text-yellow-800">
                       {unknownFacts.map((fact, index) => (
@@ -103,9 +92,46 @@ const DiagnosisPanel = ({
                 )}
               </div>
             ) : (
-              <p className="text-sm text-gray-700">
-                現在の条件では、申請可能なビザが見つかりませんでした。
-              </p>
+              <div className="bg-green-50 rounded-lg p-4 border-l-4 border-green-600">
+                <h2 className="text-lg font-bold text-green-900 mb-3">
+                  診断結果
+                </h2>
+                {conclusions.length > 0 ? (
+                  <div>
+                    <p className="text-sm text-gray-700 mb-2">
+                      以下のビザで申請が可能です:
+                    </p>
+                    <ul className="space-y-2 mb-3">
+                      {conclusions.map((conclusion, index) => (
+                        <li
+                          key={index}
+                          className="bg-white rounded-lg p-3 shadow border-l-4 border-green-500"
+                        >
+                          <span className="text-base font-semibold text-navy-900">
+                            {conclusion}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    {unknownFacts && unknownFacts.length > 0 && (
+                      <div className="bg-yellow-50 rounded-lg p-3 border-l-4 border-yellow-500">
+                        <p className="text-xs font-semibold text-yellow-900 mb-1">
+                          ※ 以下の条件については「分からない」と回答されているため、これらが満たされている前提での結果です：
+                        </p>
+                        <ul className="list-disc list-inside space-y-0.5 text-xs text-yellow-800">
+                          {unknownFacts.map((fact, index) => (
+                            <li key={index}>{fact}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-700">
+                    現在の条件では、申請可能なビザが見つかりませんでした。
+                  </p>
+                )}
+              </div>
             )}
           </div>
         )}

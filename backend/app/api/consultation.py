@@ -83,11 +83,15 @@ async def answer_question(
     conclusions = _current_engine.get_conclusions()
     is_finished = _current_engine.is_consultation_finished()
 
+    # Check if diagnosis failed due to insufficient information
+    insufficient_info = is_finished and len(_current_engine.unknown_facts) > 0 and len(conclusions) == 0
+
     return schemas.ConsultationResponse(
         next_question=next_question,
         conclusions=conclusions,
         is_finished=is_finished,
-        unknown_facts=list(_current_engine.unknown_facts)
+        unknown_facts=list(_current_engine.unknown_facts),
+        insufficient_info=insufficient_info
     )
 
 
@@ -139,7 +143,6 @@ async def go_back(db: Session = Depends(get_db)):
     _current_engine.derived_facts.clear()
     _current_engine.fired_rules.clear()
     _current_engine.unknown_facts.clear()
-    _current_engine.unknown_assumed = False  # Reset unknown assumption flag
 
     # Re-derive facts from remaining known facts (only once)
     _current_engine.forward_chain()

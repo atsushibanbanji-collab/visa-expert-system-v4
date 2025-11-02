@@ -11,6 +11,7 @@ function ConsultationPage() {
   const [conclusions, setConclusions] = useState([])
   const [unknownFacts, setUnknownFacts] = useState([])
   const [isFinished, setIsFinished] = useState(false)
+  const [insufficientInfo, setInsufficientInfo] = useState(false)
   const [visualizationData, setVisualizationData] = useState(null)
   const [questionHistory, setQuestionHistory] = useState([])
   const [loading, setLoading] = useState(false)
@@ -66,6 +67,7 @@ function ConsultationPage() {
       setConclusions(data.conclusions)
       setUnknownFacts(data.unknown_facts || [])
       setIsFinished(data.is_finished)
+      setInsufficientInfo(data.insufficient_info || false)
 
       if (data.next_question && !questionHistory.includes(data.next_question)) {
         setQuestionHistory([...questionHistory, data.next_question])
@@ -112,6 +114,7 @@ function ConsultationPage() {
     setConclusions([])
     setUnknownFacts([])
     setIsFinished(false)
+    setInsufficientInfo(false)
     setVisualizationData(null)
     setError(null)
   }
@@ -148,6 +151,7 @@ function ConsultationPage() {
                 conclusions={conclusions}
                 unknownFacts={unknownFacts}
                 isFinished={isFinished}
+                insufficientInfo={insufficientInfo}
                 questionHistory={questionHistory}
               />
             )}

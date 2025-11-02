@@ -18,6 +18,7 @@ class ConsultationResponse(BaseModel):
     conclusions: List[str] = []
     is_finished: bool = False
     unknown_facts: List[str] = []  # Facts answered as "分からない"
+    insufficient_info: bool = False  # 情報不足で診断できない場合True
 
 
 class VisualizationCondition(BaseModel):

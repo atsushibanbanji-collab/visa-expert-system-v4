@@ -14,7 +14,6 @@ class InferenceEngine:
         self.asked_questions: Set[str] = set()  # Questions already asked to user
         self.fired_rules: List[str] = []  # Rules that have been applied
         self.unknown_facts: Set[str] = set()  # Facts answered as "分からない"
-        self.unknown_assumed: bool = False  # Whether unknown facts have been assumed as true
 
     def add_fact(self, fact_name: str, value: bool):
         """Add a fact to the knowledge base"""
@@ -41,7 +40,6 @@ class InferenceEngine:
         # This is a simplified approach - clear all derived facts
         self.derived_facts.clear()
         self.fired_rules.clear()
-        self.unknown_assumed = False  # Reset unknown assumption flag
 
         # Re-derive facts from remaining known facts
         self.forward_chain()
@@ -168,33 +166,7 @@ class InferenceEngine:
             if next_question:
                 return next_question
 
-        # 通常の質問がない場合、unknown_factsに未導出の事実があれば、それらをtrueと仮定して再試行
-        if not self.unknown_assumed and len(self.unknown_facts) > 0:
-            # unknown_factsに入っているが、まだfactsに追加されていない事実をtrueと仮定
-            has_new_assumptions = False
-            for unknown_fact in list(self.unknown_facts):
-                if unknown_fact not in self.facts:
-                    self.add_fact(unknown_fact, True)
-                    has_new_assumptions = True
-
-            # 新しい仮定があれば、forward_chain()を実行して再度質問を探す
-            if has_new_assumptions:
-                self.forward_chain()
-                self.unknown_assumed = True  # 一度だけ仮定する
-
-                # 再度質問を探す
-                for rule in sorted_rules:
-                    if rule.rule_id in self.fired_rules:
-                        continue
-                    if rule.conclusion in self.facts and self.facts[rule.conclusion] == rule.conclusion_value:
-                        continue
-                    if not self._is_rule_potentially_fireable(rule):
-                        continue
-                    next_question = self._get_next_question_for_rule(rule, derivable_facts, rules)
-                    if next_question:
-                        return next_question
-
-        # 全ての条件が判明している場合
+        # 全ての質問が終了（unknown_factsが残っていても、true仮定せずに診断終了）
         return None
 
     def _get_next_question_for_rule(self, rule: Rule, derivable_facts: Set[str], all_rules: List[Rule]) -> Optional[str]:
@@ -243,8 +215,8 @@ class InferenceEngine:
                     # この条件を導出できない場合はスキップ
                     continue
 
-            # 既に「分からない」と回答済みの場合はスキップ（まだ導出を試みる段階）
-            if fact_name in self.unknown_facts and not self.unknown_assumed:
+            # 既に「分からない」と回答済みの場合はスキップ（導出を試みる）
+            if fact_name in self.unknown_facts:
                 continue
 
             # 導出不可能な条件なので質問として返す
