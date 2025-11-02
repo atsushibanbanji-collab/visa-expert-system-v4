@@ -95,7 +95,9 @@ function ConsultationPage() {
         setCurrentQuestion(data.current_question)
         setQuestionHistory(questionHistory.slice(0, -1))
         setIsFinished(false)
+        setInsufficientInfo(false)
         setConclusions([])
+        setUnknownFacts([])
       }
 
       await fetchVisualization()
