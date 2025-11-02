@@ -158,6 +158,18 @@ class InferenceEngine:
             if rule.conclusion in self.facts and self.facts[rule.conclusion] == rule.conclusion_value:
                 continue
 
+            # このルールの結論を必要とする全てのルールが既に満たされているかチェック
+            rules_needing_this_conclusion = [r for r in sorted_rules if any(c.fact_name == rule.conclusion for c in r.conditions)]
+            if rules_needing_this_conclusion:
+                all_satisfied = all(
+                    r.rule_id in self.fired_rules or
+                    (r.conclusion in self.facts and self.facts[r.conclusion] == r.conclusion_value)
+                    for r in rules_needing_this_conclusion
+                )
+                if all_satisfied:
+                    # このルールの結論は不要（全ての利用者が既に満たされている）
+                    continue
+
             if not self._is_rule_potentially_fireable(rule):
                 continue
 
