@@ -211,16 +211,12 @@ class InferenceEngine:
         for condition in rule.conditions:
             fact_name = condition.fact_name
 
-            # 既に分かっている事実
+            # 既に分かっている事実（「はい」「いいえ」で回答済み）
             if fact_name in self.facts:
                 continue
 
-            # 「わからない」で保留中
+            # 「わからない」で保留中（導出を試みる）
             if fact_name in self.unknown_facts:
-                continue
-
-            # 既に質問済み（答えが得られなかった）
-            if fact_name in self.asked_questions:
                 continue
 
             # この条件は他のルールで導出可能か？
