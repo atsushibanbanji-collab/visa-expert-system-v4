@@ -93,7 +93,10 @@ function ConsultationPage() {
 
       if (data.current_question) {
         setCurrentQuestion(data.current_question)
-        setQuestionHistory(questionHistory.slice(0, -1))
+        // Only remove from history if there are more than 1 questions
+        if (questionHistory.length > 1) {
+          setQuestionHistory(questionHistory.slice(0, -1))
+        }
         setIsFinished(false)
         setInsufficientInfo(false)
         setConclusions([])
