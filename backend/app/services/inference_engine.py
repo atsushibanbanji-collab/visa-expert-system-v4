@@ -4,7 +4,7 @@ from app.models.models import Rule, Condition, Question
 
 
 class InferenceEngine:
-    """前向き推論エンジン（Forward Chaining）"""
+    """後向き推論エンジン（Backward Chaining）- ゴール指向推論"""
 
     def __init__(self, db: Session, visa_type: str):
         self.db = db
@@ -14,6 +14,9 @@ class InferenceEngine:
         self.asked_questions: Set[str] = set()  # Questions already asked to user
         self.fired_rules: List[str] = []  # Rules that have been applied
         self.unknown_facts: Set[str] = set()  # Facts answered as "分からない"
+        self.goal = f"{visa_type}ビザでの申請ができます"  # Final goal
+        self.all_rules = None  # Cache for all rules
+        self.rules_by_conclusion = {}  # Cache: conclusion -> rules
 
     def add_fact(self, fact_name: str, value: bool):
         """Add a fact to the knowledge base"""
@@ -40,6 +43,10 @@ class InferenceEngine:
         # This is a simplified approach - clear all derived facts
         self.derived_facts.clear()
         self.fired_rules.clear()
+
+        # Clear caches (for backward chaining)
+        self.all_rules = None
+        self.rules_by_conclusion.clear()
 
         # Re-derive facts from remaining known facts
         self.forward_chain()
@@ -78,13 +85,26 @@ class InferenceEngine:
         return self.facts
 
     def _get_applicable_rules(self) -> List[Rule]:
-        """Get rules for the current visa type"""
-        return (
-            self.db.query(Rule)
-            .filter(Rule.visa_type == self.visa_type)
-            .order_by(Rule.priority.desc())
-            .all()
-        )
+        """Get rules for the current visa type (cached)"""
+        if self.all_rules is None:
+            self.all_rules = (
+                self.db.query(Rule)
+                .filter(Rule.visa_type == self.visa_type)
+                .order_by(Rule.priority.desc())
+                .all()
+            )
+            # Build conclusion -> rules cache
+            for rule in self.all_rules:
+                if rule.conclusion not in self.rules_by_conclusion:
+                    self.rules_by_conclusion[rule.conclusion] = []
+                self.rules_by_conclusion[rule.conclusion].append(rule)
+        return self.all_rules
+
+    def _get_rules_with_conclusion(self, conclusion: str) -> List[Rule]:
+        """Get all rules that have the given conclusion"""
+        if not self.rules_by_conclusion:
+            self._get_applicable_rules()  # Initialize cache
+        return self.rules_by_conclusion.get(conclusion, [])
 
     def _can_fire_rule(self, rule: Rule) -> tuple[bool, bool]:
         """
@@ -121,168 +141,133 @@ class InferenceEngine:
 
     def get_next_question(self) -> Optional[str]:
         """
-        次に質問すべき事実を選択
-        ルール単位で完全に検証してから次のルールに進む（深さ優先探索）
-        導出可能な事実がある場合、その事実を導出するルールを先に完全評価
-        発火不可能なルールはスキップする
-        最終結論が不可能になったら診断を終了
+        バックワードチェイニング: ゴールから逆算して次に必要な質問を見つける
+
+        基本原理:
+        1. ゴールを達成するために必要なルールを見つける
+        2. そのルールの条件を満たすために必要な事実を探す
+        3. 事実が導出可能なら、再帰的にその事実をゴールとして探索
+        4. 導出不可能なら、ユーザーに質問
         """
-        rules = self._get_applicable_rules()
+        return self._find_question_for_goal(self.goal)
 
-        # Get derivable facts (facts that are conclusions of rules)
-        derivable_facts = set()
+    def _find_question_for_goal(self, goal: str, visited: Set[str] = None) -> Optional[str]:
+        """
+        指定されたゴールを達成するために必要な質問を探す（再帰的）
+
+        Args:
+            goal: 達成したいゴール（結論）
+            visited: 循環参照を避けるための訪問済みゴールセット
+
+        Returns:
+            次に質問すべきfact_name、またはNone
+        """
+        if visited is None:
+            visited = set()
+
+        # 循環参照を避ける
+        if goal in visited:
+            return None
+        visited.add(goal)
+
+        # 既にゴールが達成されている場合
+        if goal in self.facts:
+            return None
+
+        # このゴールを達成するためのルールを取得（優先度順）
+        rules = self._get_rules_with_conclusion(goal)
+        if not rules:
+            # このゴールを達成するルールがない（導出不可能）
+            return None
+
         for rule in rules:
-            derivable_facts.add(rule.conclusion)
-
-        # ルールを優先度順にソート（高い優先度から）
-        sorted_rules = sorted(rules, key=lambda r: r.priority, reverse=True)
-
-        # 最終結論のルール（最も優先度が高く、「での申請ができます」が含まれる）を特定
-        final_conclusion_rule = None
-        for rule in sorted_rules:
-            if "での申請ができます" in rule.conclusion:
-                final_conclusion_rule = rule
-                break
-
-        # 最終結論のルールが発火不可能になったら診断を終了
-        if final_conclusion_rule and not self._is_rule_potentially_fireable(final_conclusion_rule):
-            return None  # 診断終了
-
-        # 現在評価中のルールから質問を取得（深さ優先探索）
-        for rule in sorted_rules:
-            # 既に発火済みのルールはスキップ（全条件を聞く必要なし）
+            # 既にこのルールが発火している
             if rule.rule_id in self.fired_rules:
                 continue
 
-            # 既に結論が導出済みのルールはスキップ
-            if rule.conclusion in self.facts and self.facts[rule.conclusion] == rule.conclusion_value:
+            # このルールが発火不可能かチェック
+            if self._is_rule_impossible(rule):
                 continue
 
-            # このルールの結論を必要とする全てのルールが既に満たされているかチェック
-            rules_needing_this_conclusion = [r for r in sorted_rules if any(c.fact_name == rule.conclusion for c in r.conditions)]
-            if rules_needing_this_conclusion:
-                all_satisfied = all(
-                    r.rule_id in self.fired_rules or
-                    (r.conclusion in self.facts and self.facts[r.conclusion] == r.conclusion_value)
-                    for r in rules_needing_this_conclusion
-                )
-                if all_satisfied:
-                    # このルールの結論は不要（全ての利用者が既に満たされている）
-                    continue
+            # このルールの条件を満たすために必要な質問を探す
+            question = self._find_question_for_rule(rule, visited.copy())
+            if question:
+                return question
 
-            if not self._is_rule_potentially_fireable(rule):
-                continue
-
-            # このルールの次の質問を取得（再帰的に導出可能な条件を解決）
-            next_question = self._get_next_question_for_rule(rule, derivable_facts, rules)
-            if next_question:
-                return next_question
-
-        # 全ての質問が終了（unknown_factsが残っていても、true仮定せずに診断終了）
+        # このゴールを達成するための質問が見つからない
         return None
 
-    def _get_next_question_for_rule(self, rule: Rule, derivable_facts: Set[str], all_rules: List[Rule]) -> Optional[str]:
+    def _find_question_for_rule(self, rule: Rule, visited: Set[str]) -> Optional[str]:
         """
-        指定されたルールの次の質問を取得（深さ優先探索）
-        導出可能な条件がある場合、その条件を導出するルールを先に評価
+        指定されたルールを発火させるために必要な質問を探す
+
+        Args:
+            rule: 評価するルール
+            visited: 循環参照を避けるための訪問済みゴールセット
 
         Returns:
-            次に質問すべきfact_name、またはNone（全条件が既知または導出済み）
+            次に質問すべきfact_name、またはNone
         """
         for condition in rule.conditions:
             fact_name = condition.fact_name
 
-            # 既に分かっている事実はスキップ
+            # 既に分かっている事実
             if fact_name in self.facts:
                 continue
 
-            # 導出可能な事実の場合
-            if fact_name in derivable_facts:
-                # この条件を必要とする全てのルールをチェック
-                rules_needing_this = [r for r in all_rules if any(c.fact_name == fact_name for c in r.conditions)]
-                all_satisfied = all(
-                    r.rule_id in self.fired_rules or
-                    (r.conclusion in self.facts and self.facts[r.conclusion] == r.conclusion_value)
-                    for r in rules_needing_this
-                )
-
-                if all_satisfied:
-                    # この条件を使う全てのルールが既に満たされているので、この条件は不要
-                    continue
-                else:
-                    # まだ評価中のルールがあるので、この条件を導出する必要がある
-                    # 深さ優先で、この条件を導出するルールの質問に進む
-                    deriving_rules = [r for r in all_rules if r.conclusion == fact_name]
-                    deriving_rules = sorted(deriving_rules, key=lambda r: r.priority, reverse=True)
-                    for deriving_rule in deriving_rules:
-                        # 既に発火済みまたは結論導出済みならスキップ
-                        if deriving_rule.rule_id in self.fired_rules:
-                            continue
-                        if deriving_rule.conclusion in self.facts and self.facts[deriving_rule.conclusion] == deriving_rule.conclusion_value:
-                            continue
-                        if self._is_rule_potentially_fireable(deriving_rule):
-                            nested_question = self._get_next_question_for_rule(deriving_rule, derivable_facts, all_rules)
-                            if nested_question:
-                                return nested_question
-                    # この条件を導出できない場合はスキップ
-                    continue
-
-            # 既に「分からない」と回答済みの場合はスキップ（導出を試みる）
+            # 「わからない」で保留中
             if fact_name in self.unknown_facts:
                 continue
 
-            # 導出不可能な条件なので質問として返す
+            # 既に質問済み（答えが得られなかった）
+            if fact_name in self.asked_questions:
+                continue
+
+            # この条件は他のルールで導出可能か？
+            if self._is_derivable(fact_name):
+                # 再帰的に、この条件をゴールとして質問を探す
+                question = self._find_question_for_goal(fact_name, visited)
+                if question:
+                    return question
+                # 導出できない場合は次の条件へ
+                continue
+
+            # 導出不可能なので、直接質問する
             return fact_name
 
-        # このルールの全条件が既知または導出可能
+        # このルールの全条件が既知または導出不可能
         return None
 
-    def _is_rule_potentially_fireable(self, rule: Rule, checked_rules: Set[str] = None) -> bool:
+    def _is_derivable(self, fact_name: str) -> bool:
+        """指定された事実が他のルールの結論として導出可能か"""
+        return len(self._get_rules_with_conclusion(fact_name)) > 0
+
+    def _is_rule_impossible(self, rule: Rule) -> bool:
         """
-        ルールがまだ発火可能かチェック（連鎖的な判定）
-        AND: 1つでもFalseなら発火不可能
-        OR: 1つでもTrueなら発火確定（残りの条件は不要）
-
-        導出可能な条件について、その条件を導出する全てのルールが発火不可能なら、
-        その条件は満たせないため、このルールも発火不可能と判定
+        ルールが発火不可能か判定（ANDルールで1つでもFalse、ORルールで全てFalse）
         """
-        if checked_rules is None:
-            checked_rules = set()
-
-        # 循環参照を避けるため、既にチェック中のルールは発火可能と仮定
-        if rule.rule_id in checked_rules:
-            return True
-
-        checked_rules.add(rule.rule_id)
-
-        # 全てのルールを取得（導出可能性チェックのため）
-        all_rules = self._get_applicable_rules()
-        derivable_facts = set(r.conclusion for r in all_rules)
-
         if rule.operator == "AND":
-            # ANDの場合、1つでも条件が満たされていなければ発火不可能
+            # ANDの場合、1つでも条件がFalseなら発火不可能
             for condition in rule.conditions:
                 if condition.fact_name in self.facts:
                     if self.facts[condition.fact_name] != condition.expected_value:
-                        return False  # 発火不可能（既知の条件で満たされない）
-                elif condition.fact_name in derivable_facts:
-                    # 導出可能な条件：その条件を導出する全てのルールが発火不可能かチェック
-                    deriving_rules = [r for r in all_rules if r.conclusion == condition.fact_name]
-                    all_unfireable = all(
-                        not self._is_rule_potentially_fireable(r, checked_rules.copy())
-                        for r in deriving_rules
-                    )
-                    if all_unfireable:
-                        return False  # 導出不可能なので発火不可能
-            return True  # まだ発火可能
-
+                        return True
+            return False
         else:  # OR
-            # ORの場合、1つでも条件が満たされていれば発火確定
+            # ORの場合、全ての既知条件がFalseなら発火不可能
+            has_known_condition = False
             for condition in rule.conditions:
                 if condition.fact_name in self.facts:
+                    has_known_condition = True
                     if self.facts[condition.fact_name] == condition.expected_value:
-                        return False  # もう発火確定なので残りの質問不要
-            return True  # まだどの条件も満たされていない
+                        return False  # 1つでも満たされているので発火可能
+            # 全ての既知条件が不一致、かつ未知の条件がない場合のみ不可能
+            if has_known_condition:
+                # 未知の条件があるかチェック
+                has_unknown = any(c.fact_name not in self.facts for c in rule.conditions)
+                return not has_unknown
+            return False
+
 
     def get_conclusions(self) -> List[str]:
         """Get all derived conclusions"""
