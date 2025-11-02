@@ -158,6 +158,7 @@ function ConsultationPage() {
                 isFinished={isFinished}
                 insufficientInfo={insufficientInfo}
                 questionHistory={questionHistory}
+                loading={loading}
               />
             )}
           </div>

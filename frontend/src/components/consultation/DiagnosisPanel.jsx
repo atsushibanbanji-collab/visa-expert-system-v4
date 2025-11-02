@@ -7,7 +7,8 @@ const DiagnosisPanel = ({
   unknownFacts,
   isFinished,
   insufficientInfo,
-  questionHistory
+  questionHistory,
+  loading
 }) => {
   const handleAnswer = (answer) => {
     if (currentQuestion) {
@@ -48,19 +49,22 @@ const DiagnosisPanel = ({
             <div className="flex gap-3">
               <button
                 onClick={() => handleAnswer(true)}
-                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors duration-200"
+                disabled={loading}
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 はい
               </button>
               <button
                 onClick={() => handleAnswer(false)}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors duration-200"
+                disabled={loading}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 いいえ
               </button>
               <button
                 onClick={() => handleAnswer(null)}
-                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors duration-200"
+                disabled={loading}
+                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 分からない
               </button>
@@ -141,7 +145,7 @@ const DiagnosisPanel = ({
       <div className="flex gap-3">
         <button
           onClick={onBack}
-          disabled={questionHistory.length <= 1}
+          disabled={questionHistory.length <= 1 || loading}
           className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-3 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
         >
           前の質問に戻る
