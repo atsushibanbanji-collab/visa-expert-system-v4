@@ -84,14 +84,21 @@ async def answer_question(
     is_finished = _current_engine.is_consultation_finished()
 
     # Check if diagnosis failed due to insufficient information
-    insufficient_info = is_finished and len(_current_engine.unknown_facts) > 0 and len(conclusions) == 0
+    goal_achieved = _current_engine.goal in _current_engine.facts and _current_engine.facts[_current_engine.goal]
+    insufficient_info = is_finished and not goal_achieved and len(_current_engine.unknown_facts) > 0
+
+    # Get missing critical information if diagnosis is incomplete
+    missing_critical_info = []
+    if insufficient_info:
+        missing_critical_info = _current_engine.get_missing_critical_info()
 
     return schemas.ConsultationResponse(
         next_question=next_question,
         conclusions=conclusions,
         is_finished=is_finished,
         unknown_facts=list(_current_engine.unknown_facts),
-        insufficient_info=insufficient_info
+        insufficient_info=insufficient_info,
+        missing_critical_info=missing_critical_info
     )
 
 

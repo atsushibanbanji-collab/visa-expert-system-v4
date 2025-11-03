@@ -181,6 +181,10 @@ class InferenceEngine:
             # このゴールを達成するルールがない（導出不可能）
             return None
 
+        # 代替パスを評価：未評価でないルールを優先
+        available_rules = []
+        uncertain_rules = []
+
         for rule in rules:
             # 既にこのルールが発火している
             if rule.rule_id in self.fired_rules:
@@ -190,7 +194,20 @@ class InferenceEngine:
             if self._is_rule_impossible(rule):
                 continue
 
-            # このルールの条件を満たすために必要な質問を探す
+            # このルールが「わからない」条件を含むかチェック
+            if self._has_unknown_conditions(rule):
+                uncertain_rules.append(rule)
+            else:
+                available_rules.append(rule)
+
+        # まず「わからない」条件を含まないルールを試す（代替パス）
+        for rule in available_rules:
+            question = self._find_question_for_rule(rule, visited.copy())
+            if question:
+                return question
+
+        # 代替パスがない場合、「わからない」条件を含むルールも試す
+        for rule in uncertain_rules:
             question = self._find_question_for_rule(rule, visited.copy())
             if question:
                 return question
@@ -239,6 +256,13 @@ class InferenceEngine:
         """指定された事実が他のルールの結論として導出可能か"""
         return len(self._get_rules_with_conclusion(fact_name)) > 0
 
+    def _has_unknown_conditions(self, rule: Rule) -> bool:
+        """ルールが「わからない」と回答された条件を含むかチェック"""
+        for condition in rule.conditions:
+            if condition.fact_name in self.unknown_facts:
+                return True
+        return False
+
     def _is_rule_impossible(self, rule: Rule) -> bool:
         """
         ルールが発火不可能か判定（ANDルールで1つでもFalse、ORルールで全てFalse）
@@ -278,6 +302,77 @@ class InferenceEngine:
         """Check if consultation is finished (no more questions to ask)"""
         return self.get_next_question() is None
 
+    def get_missing_critical_info(self) -> List[str]:
+        """
+        診断が完了できない場合の不足している重要情報を取得
+
+        Returns:
+            不足している重要情報のリスト（fact_name）
+        """
+        missing_info = []
+
+        # ゴールが達成されていない場合
+        if self.goal not in self.facts or not self.facts[self.goal]:
+            # ゴールに到達するためのルールを取得
+            rules = self._get_rules_with_conclusion(self.goal)
+
+            for rule in rules:
+                # このルールが発火不可能かチェック
+                if self._is_rule_impossible(rule):
+                    continue
+
+                # このルールの未確定条件を収集
+                for condition in rule.conditions:
+                    fact_name = condition.fact_name
+
+                    # 既に確定している条件はスキップ
+                    if fact_name in self.facts:
+                        continue
+
+                    # 「わからない」と回答された条件
+                    if fact_name in self.unknown_facts:
+                        # この条件が他のルールで導出できないか確認
+                        if not self._can_derive_from_alternative(fact_name):
+                            # 代替パスがない重要情報
+                            if fact_name not in missing_info:
+                                missing_info.append(fact_name)
+
+        return missing_info
+
+    def _can_derive_from_alternative(self, fact_name: str) -> bool:
+        """
+        指定された事実を代替パスで導出できるかチェック
+
+        Args:
+            fact_name: チェックする事実名
+
+        Returns:
+            代替パスで導出可能ならTrue
+        """
+        # この事実を結論とするルールがあるか
+        rules = self._get_rules_with_conclusion(fact_name)
+
+        for rule in rules:
+            # このルールが発火可能かチェック
+            if self._is_rule_impossible(rule):
+                continue
+
+            # このルールが「わからない」条件を含まないかチェック
+            has_unknown = False
+            all_known = True
+
+            for condition in rule.conditions:
+                if condition.fact_name in self.unknown_facts:
+                    has_unknown = True
+                if condition.fact_name not in self.facts:
+                    all_known = False
+
+            # 「わからない」条件がなく、まだ未確定の条件があれば代替可能
+            if not has_unknown and not all_known:
+                return True
+
+        return False
+
     def get_rule_visualization(self) -> Dict:
         """
         推論過程の可視化用データを生成
@@ -302,6 +397,10 @@ class InferenceEngine:
                         has_satisfied = True
                     else:
                         has_not_satisfied = True
+                elif condition.fact_name in self.unknown_facts:
+                    # 「わからない」と回答された条件
+                    status = "uncertain"
+                    all_known = False
                 else:
                     status = "unknown"
                     all_known = False
