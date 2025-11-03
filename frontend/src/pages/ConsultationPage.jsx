@@ -12,6 +12,7 @@ function ConsultationPage() {
   const [unknownFacts, setUnknownFacts] = useState([])
   const [isFinished, setIsFinished] = useState(false)
   const [insufficientInfo, setInsufficientInfo] = useState(false)
+  const [missingCriticalInfo, setMissingCriticalInfo] = useState([])
   const [visualizationData, setVisualizationData] = useState(null)
   const [questionHistory, setQuestionHistory] = useState([])
   const [loading, setLoading] = useState(false)
@@ -32,6 +33,7 @@ function ConsultationPage() {
       setQuestionHistory(data.next_question ? [data.next_question] : [])
       setConclusions([])
       setUnknownFacts(data.unknown_facts || [])
+      setMissingCriticalInfo(data.missing_critical_info || [])
       setIsFinished(false)
       await fetchVisualization()
     } catch (err) {
@@ -66,6 +68,7 @@ function ConsultationPage() {
       setCurrentQuestion(data.next_question)
       setConclusions(data.conclusions)
       setUnknownFacts(data.unknown_facts || [])
+      setMissingCriticalInfo(data.missing_critical_info || [])
       setIsFinished(data.is_finished)
       setInsufficientInfo(data.insufficient_info || false)
 
@@ -101,6 +104,7 @@ function ConsultationPage() {
         setInsufficientInfo(false)
         setConclusions([])
         setUnknownFacts([])
+        setMissingCriticalInfo([])
       }
 
       await fetchVisualization()
@@ -118,6 +122,7 @@ function ConsultationPage() {
     setQuestionHistory([])
     setConclusions([])
     setUnknownFacts([])
+    setMissingCriticalInfo([])
     setIsFinished(false)
     setInsufficientInfo(false)
     setVisualizationData(null)
@@ -157,6 +162,7 @@ function ConsultationPage() {
                 unknownFacts={unknownFacts}
                 isFinished={isFinished}
                 insufficientInfo={insufficientInfo}
+                missingCriticalInfo={missingCriticalInfo}
                 questionHistory={questionHistory}
                 loading={loading}
               />

@@ -15,6 +15,7 @@ const VisualizationPanel = ({ visualizationData, currentQuestion }) => {
   const getConditionColor = (status, isDerivable) => {
     if (status === 'satisfied') return 'bg-green-100 text-green-800 border-green-300';
     if (status === 'not_satisfied') return 'bg-red-100 text-red-800 border-red-300';
+    if (status === 'uncertain') return 'bg-yellow-100 text-yellow-800 border-yellow-300 border-dashed'; // 「わからない」と回答された条件
     if (isDerivable) return 'bg-purple-100 text-purple-800 border-purple-300';
     return 'bg-gray-100 text-gray-600 border-gray-300';
   };

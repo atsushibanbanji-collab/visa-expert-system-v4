@@ -7,6 +7,7 @@ const DiagnosisPanel = ({
   unknownFacts,
   isFinished,
   insufficientInfo,
+  missingCriticalInfo,
   questionHistory,
   loading
 }) => {
@@ -92,6 +93,21 @@ const DiagnosisPanel = ({
                         <li key={index}>{fact}</li>
                       ))}
                     </ul>
+                  </div>
+                )}
+                {missingCriticalInfo && missingCriticalInfo.length > 0 && (
+                  <div className="mt-3 bg-red-100 rounded-lg p-3 border-l-4 border-red-500">
+                    <p className="text-xs font-semibold text-red-900 mb-1">
+                      診断を完了するために必要な重要情報：
+                    </p>
+                    <ul className="list-disc list-inside space-y-0.5 text-xs text-red-800">
+                      {missingCriticalInfo.map((fact, index) => (
+                        <li key={index}>{fact}</li>
+                      ))}
+                    </ul>
+                    <p className="text-xs text-red-700 mt-2">
+                      これらの情報を確認してから再度診断してください。
+                    </p>
                   </div>
                 )}
               </div>
