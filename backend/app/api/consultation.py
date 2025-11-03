@@ -151,13 +151,16 @@ async def go_back(db: Session = Depends(get_db)):
 
 
 @router.get("/visualization", response_model=schemas.VisualizationResponse)
-async def get_visualization():
+async def get_visualization(db: Session = Depends(get_db)):
     """推論過程の可視化データを取得"""
     global _current_engine, _current_question_fact
 
     if not _current_engine:
         # Return empty visualization if no session
         return schemas.VisualizationResponse(rules=[], fired_rules=[], current_question_fact=None)
+
+    # Update db session in case the old one was closed
+    _current_engine.db = db
 
     result = _current_engine.get_rule_visualization()
     result["current_question_fact"] = _current_question_fact
