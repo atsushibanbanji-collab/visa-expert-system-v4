@@ -1,5 +1,5 @@
 from typing import Dict, List, Optional, Set, Tuple
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.models.models import Rule, Condition, Question
 
 
@@ -89,6 +89,7 @@ class InferenceEngine:
         if self.all_rules is None:
             self.all_rules = (
                 self.db.query(Rule)
+                .options(joinedload(Rule.conditions))  # Eager load conditions
                 .filter(Rule.visa_type == self.visa_type)
                 .order_by(Rule.priority.desc())
                 .all()

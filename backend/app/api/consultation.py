@@ -159,8 +159,10 @@ async def get_visualization(db: Session = Depends(get_db)):
         # Return empty visualization if no session
         return schemas.VisualizationResponse(rules=[], fired_rules=[], current_question_fact=None)
 
-    # Update db session in case the old one was closed
+    # Update db session and clear cache to avoid lazy loading issues
     _current_engine.db = db
+    _current_engine.all_rules = None
+    _current_engine.rules_by_conclusion.clear()
 
     result = _current_engine.get_rule_visualization()
     result["current_question_fact"] = _current_question_fact
