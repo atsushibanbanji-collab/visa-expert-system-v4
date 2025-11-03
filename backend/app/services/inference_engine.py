@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set, Tuple
 from sqlalchemy.orm import Session
 from app.models.models import Rule, Condition, Question
 
@@ -106,7 +106,7 @@ class InferenceEngine:
             self._get_applicable_rules()  # Initialize cache
         return self.rules_by_conclusion.get(conclusion, [])
 
-    def _can_fire_rule(self, rule: Rule) -> tuple[bool, bool]:
+    def _can_fire_rule(self, rule: Rule) -> Tuple[bool, bool]:
         """
         Check if a rule can fire
         Returns: (can_fire, all_conditions_known)
