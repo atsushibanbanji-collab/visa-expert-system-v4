@@ -22,11 +22,11 @@ services:
     staticPublishPath: frontend/dist
     envVars:
       - key: VITE_API_URL
-        value: https://visa-expert-backend.onrender.com/api
+        value: https://visa-expert-backend-h2oa.onrender.com/api
     routes:
       - type: rewrite
         source: /api/*
-        destination: https://visa-expert-backend.onrender.com/api/*
+        destination: https://visa-expert-backend-h2oa.onrender.com/api/*
       - type: rewrite
         source: /*
         destination: /index.html
