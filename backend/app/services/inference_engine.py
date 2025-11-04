@@ -181,6 +181,14 @@ class InferenceEngine:
             # このゴールを達成するルールがない（導出不可能）
             return None
 
+        # 重要：このゴール自体が高優先度の質問かチェック
+        # 導出可能でも、優先度が高ければ直接質問する
+        if goal not in self.asked_questions:
+            goal_priority = self._get_question_priority(goal)
+            if goal_priority >= 80:
+                # 高優先度の導出可能な質問は直接聞く
+                return goal
+
         # 代替パスを評価：未評価でないルールを優先
         available_rules = []
         uncertain_rules = []
