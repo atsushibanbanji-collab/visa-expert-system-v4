@@ -23,6 +23,9 @@ C:\Users\GPC999\Documents\works\visa-expert-system-v4\
 │   │   │   └── database.py        # DB設定
 │   │   └── main.py                # FastAPIエントリーポイント
 │   ├── migrate_rules.py           # ルール移行スクリプト
+│   ├── migrate_add_derivable_questions.py  # 導出可能な質問追加スクリプト
+│   ├── add_questions.sql          # ローカル開発用SQL
+│   ├── run_sql.py                 # SQL実行ユーティリティ
 │   └── requirements.txt
 ├── frontend/                   # React + Vite フロントエンド
 │   ├── src/
@@ -58,7 +61,7 @@ C:\Users\GPC999\Documents\works\visa-expert-system-v4\
 - **フロントエンドURL**: https://visa-expert-frontend-h2oa.onrender.com
 - **デプロイ方式**: GitHubプッシュで自動デプロイ
 
-## 現在の実装状況（2025-11-04 00:16時点）
+## 現在の実装状況（2025-11-04 最終更新）
 
 ### ✅ 完了した機能
 
@@ -89,7 +92,35 @@ C:\Users\GPC999\Documents\works\visa-expert-system-v4\
   - `DiagnosisPanel.jsx`: 赤いボックスで不足情報を表示
   - `VisualizationPanel.jsx`: 不明条件を黄色破線で表示
 
-#### 3. ルール可視化機能
+#### 3. 導出可能な質問機能（最新実装）
+- **実装日**: 2025-11-04
+- **機能**:
+  - **高優先度質問の追加**: 導出可能な事実（ルール2,5,15,23の結論）を質問として追加
+  - **質問優先度判定**: Priority 80以上の質問は直接聞く
+  - **詳細質問への展開**: 「わからない」選択時に詳細質問に進む
+  - **診断効率の向上**: 知識がある人は高レベル質問で効率的に診断
+
+- **追加された質問** (10個):
+  - 会社がEビザの条件を満たしますか？ (Priority: 95)
+  - 申請者がEビザの条件を満たしますか？ (Priority: 85)
+  - 会社がEビザの投資（E-2）の条件を満たしますか？ (Priority: 90)
+  - 会社がEビザの貿易（E-1）の条件を満たしますか？ (Priority: 90)
+  - 申請者がEビザのマネージャー以上の条件を満たしますか？ (Priority: 80)
+  - 申請者がEビザのスタッフの条件を満たしますか？ (Priority: 80)
+  - Blanket Lビザのマネージャーまたはスタッフの条件を満たしますか？ (Priority: 85)
+  - Bビザの申請ができますか？ (Priority: 95)
+  - Bビザの申請条件を満たしますか？（ESTAの認証が通る場合） (Priority: 90)
+  - Bビザの申請条件を満たしますか？（ESTAの認証が通らない場合） (Priority: 90)
+
+- **関連メソッド** (`inference_engine.py`):
+  - `_get_question_priority(fact_name)`: 質問の優先度を取得
+  - `_find_question_for_rule()`: 優先度に基づいて質問を決定
+
+- **マイグレーションスクリプト**:
+  - `migrate_add_derivable_questions.py`: 本番環境への質問追加スクリプト
+  - `add_questions.sql`: ローカル開発用SQLスクリプト
+
+#### 4. ルール可視化機能
 - **実装場所**: `VisualizationPanel.jsx`
 - **表示内容**:
   - ルールの条件と結論
@@ -97,15 +128,45 @@ C:\Users\GPC999\Documents\works\visa-expert-system-v4\
   - 発火済み・推論中・未評価の区別
   - 現在の質問に関連するルールへの自動スクロール
 
-#### 4. データベース＆ルール
-- **ルール数**: 30個（Eビザ用）
+#### 5. データベース＆ルール
+- **ルール数**: 30個（E/L/Bビザ用）
 - **条件数**: 75個
-- **質問数**: 63個
-- **移行スクリプト**: `migrate_rules.py`
+- **質問数**: 73個（基本質問63個 + 導出可能質問10個）
+- **移行スクリプト**: `migrate_rules.py`, `migrate_add_derivable_questions.py`
 
 ### 🚧 最新の変更（コミット履歴）
 
-#### コミット f41eb9f (最新)
+#### コミット a997196 (最新)
+```
+ビルドコマンドに質問マイグレーションを追加
+- render.yamlのbuildCommandに導出可能な質問のマイグレーションを追加
+- デプロイ時に自動的に新しい質問がデータベースに追加される
+```
+**変更ファイル**:
+- `render.yaml`: buildCommandに`python migrate_add_derivable_questions.py`を追加
+
+#### コミット 8ea9385
+```
+マイグレーションスクリプトを追加: 導出可能な質問
+- 本番環境用のマイグレーションスクリプトを作成
+- 10個の高優先度質問を追加
+```
+**変更ファイル**:
+- `backend/migrate_add_derivable_questions.py`: 新規作成
+
+#### コミット 8a35859
+```
+導出可能な質問の追加と推論エンジンの改善
+- 導出可能な事実（rule 2,5,15,23の結論）を高優先度質問として追加
+- 「わからない」選択時に詳細質問に進む機能を実装
+- 質問優先度判定ロジック追加
+```
+**変更ファイル**:
+- `backend/app/services/inference_engine.py`: `_get_question_priority()`メソッド追加
+- `backend/add_questions.sql`: 10個の質問をSQLで定義
+- `backend/run_sql.py`: SQL実行ユーティリティ
+
+#### コミット f41eb9f
 ```
 Fix: start_consultation APIレスポンスに不足フィールドを追加
 - insufficient_info と missing_critical_info フィールドを追加
@@ -251,8 +312,8 @@ services:
     env: python
     region: oregon
     runtime: python-3.11  # 必須！
-    buildCommand: pip install -r requirements.txt
-    startCommand: python migrate_rules.py && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    buildCommand: cd backend && pip install -r requirements.txt && python migrate_rules.py && python migrate_add_derivable_questions.py
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port $PORT
 
   - type: static
     name: visa-expert-frontend-h2oa
@@ -376,6 +437,30 @@ envVars:
 
 ## テストシナリオ
 
+### 導出可能な質問機能のテスト（最新）
+
+1. **ブラウザでアクセス**:
+   - ローカル: http://localhost:5173
+   - 本番: https://visa-expert-frontend-h2oa.onrender.com
+
+2. **Eビザを選択**して診断開始
+
+3. **最初の質問**: "申請者と会社の国籍が同じです"
+   - 「はい」をクリック
+
+4. **2番目の質問（高レベル質問）**: "会社がEビザの条件を満たしますか？"
+   - **知識がある人**: 「はい」をクリック → 次の高レベル質問へ
+   - **知識がない人**: 「分からない」をクリック → 詳細質問へ
+
+5. **「分からない」を選択した場合の確認項目**:
+   - ✅ 次の質問が詳細質問（例: "会社がEビザの投資（E-2）の条件を満たしますか？"）
+   - ✅ 可視化パネルで「会社がEビザの条件を満たします」が黄色破線で表示
+   - ✅ より具体的な会社要件の質問が提示される
+
+6. **「はい」を選択した場合の確認項目**:
+   - ✅ 次の質問が別の高レベル質問（例: "申請者がEビザの条件を満たしますか？"）
+   - ✅ 診断が効率的に進む（詳細質問をスキップ）
+
 ### 「わからない」回答機能のテスト
 
 1. **ブラウザでアクセス**:
@@ -466,14 +551,17 @@ git log --oneline -5
 **現在の状態**:
 - ✅ バックワードチェイニング推論エンジン完成
 - ✅ 「わからない」回答の高度な処理実装完了
+- ✅ 導出可能な質問機能実装完了（NEW）
+- ✅ 質問優先度判定ロジック実装完了（NEW）
 - ✅ フロントエンド統合完了
-- ✅ 最新コード（f41eb9f）をGitHubにプッシュ済み
-- 🚧 Renderでのデプロイ進行中（自動）
+- ✅ 最新コード（a997196）をGitHubにプッシュ済み
+- ✅ Renderでのデプロイ設定完了（自動マイグレーション含む）
 
 **次のアクション**:
 1. Renderでのデプロイ完了を待つ（5-10分）
-2. 本番環境で「わからない」回答機能をテスト
-3. 問題があれば修正、なければ完了
+2. 本番環境で導出可能な質問機能をテスト
+3. 知識がある人・ない人の両方のフローをテスト
+4. 問題があれば修正、なければ完了
 
 **重要な注意事項**:
 - シングルユーザー設計（グローバル状態使用）
@@ -484,5 +572,5 @@ git log --oneline -5
 ---
 
 **作成日**: 2025-11-04 00:20
-**最終更新**: f41eb9f
+**最終更新**: 2025-11-04 (コミット a997196)
 **作成者**: Claude Code
