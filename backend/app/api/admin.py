@@ -278,3 +278,118 @@ async def validate_rules(
     service = ValidationService(db)
     result = service.validate_rules(visa_type)
     return result
+
+
+# ========== Migration ==========
+
+
+@router.post("/migrate/derivable-questions")
+async def migrate_derivable_questions(
+    db: Session = Depends(get_db),
+    username: str = Depends(verify_admin),
+):
+    """導出可能な質問を追加するマイグレーション"""
+    from app.models.models import Question
+
+    try:
+        # 導出可能な事実（rule 2, 5, 15, 23の結論）を質問として追加
+        derivable_questions = [
+            {
+                "fact_name": "会社がEビザの条件を満たします",
+                "question_text": "会社がEビザの条件を満たしますか？",
+                "visa_type": "E",
+                "priority": 95,
+            },
+            {
+                "fact_name": "申請者がEビザの条件を満たします",
+                "question_text": "申請者がEビザの条件を満たしますか？",
+                "visa_type": "E",
+                "priority": 85,
+            },
+            {
+                "fact_name": "会社がEビザの投資の条件を満たします",
+                "question_text": "会社がEビザの投資（E-2）の条件を満たしますか？",
+                "visa_type": "E",
+                "priority": 90,
+            },
+            {
+                "fact_name": "会社がEビザの貿易の条件を満たします",
+                "question_text": "会社がEビザの貿易（E-1）の条件を満たしますか？",
+                "visa_type": "E",
+                "priority": 90,
+            },
+            {
+                "fact_name": "申請者がEビザのマネージャー以上の条件を満たします",
+                "question_text": "申請者がEビザのマネージャー以上の条件を満たしますか？",
+                "visa_type": "E",
+                "priority": 80,
+            },
+            {
+                "fact_name": "申請者がEビザのスタッフの条件を満たします",
+                "question_text": "申請者がEビザのスタッフ（専門職）の条件を満たしますか？",
+                "visa_type": "E",
+                "priority": 80,
+            },
+            {
+                "fact_name": "Blanket Lビザのマネージャーまたはスタッフの条件を満たします",
+                "question_text": "Blanket Lビザのマネージャーまたはスタッフの条件を満たしますか？",
+                "visa_type": "L",
+                "priority": 85,
+            },
+            {
+                "fact_name": "Bビザの申請ができます",
+                "question_text": "Bビザの申請ができますか？",
+                "visa_type": "B",
+                "priority": 95,
+            },
+            {
+                "fact_name": "Bビザの申請条件を満たす（ESTAの認証は通る）",
+                "question_text": "Bビザの申請条件を満たしますか？（ESTAの認証が通る場合）",
+                "visa_type": "B",
+                "priority": 90,
+            },
+            {
+                "fact_name": "Bビザの申請条件を満たす（ESTAの認証は通らない）",
+                "question_text": "Bビザの申請条件を満たしますか？（ESTAの認証が通らない場合）",
+                "visa_type": "B",
+                "priority": 90,
+            },
+        ]
+
+        added_count = 0
+        updated_count = 0
+        skipped_count = 0
+
+        for q_data in derivable_questions:
+            # Check if question already exists
+            existing = db.query(Question).filter(
+                Question.fact_name == q_data["fact_name"]
+            ).first()
+
+            if existing:
+                # Update only if priority is different
+                if existing.priority != q_data["priority"]:
+                    existing.priority = q_data["priority"]
+                    existing.question_text = q_data["question_text"]
+                    updated_count += 1
+                else:
+                    skipped_count += 1
+            else:
+                # Add new question
+                question = Question(**q_data)
+                db.add(question)
+                added_count += 1
+
+        db.commit()
+
+        return {
+            "success": True,
+            "added": added_count,
+            "updated": updated_count,
+            "skipped": skipped_count,
+            "message": f"Migration complete! Added: {added_count}, Updated: {updated_count}, Skipped: {skipped_count}"
+        }
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Migration failed: {str(e)}")
