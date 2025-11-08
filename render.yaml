@@ -3,7 +3,6 @@ services:
     name: visa-expert-backend
     env: python
     region: oregon
-    runtime: python-3.11
     buildCommand: "cd backend && pip install -r requirements.txt"
     startCommand: "cd backend && python migrate_rules.py && python migrate_add_derivable_questions.py && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
     envVars:
@@ -23,11 +22,8 @@ services:
     staticPublishPath: frontend/dist
     envVars:
       - key: VITE_API_URL
-        value: https://visa-expert-backend-h2oa.onrender.com/api
+        value: https://visa-expert-backend.onrender.com/api
     routes:
-      - type: rewrite
-        source: /api/*
-        destination: https://visa-expert-backend-h2oa.onrender.com/api/*
       - type: rewrite
         source: /*
         destination: /index.html
