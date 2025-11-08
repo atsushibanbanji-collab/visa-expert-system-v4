@@ -308,13 +308,13 @@ async def migrate_derivable_questions(
             },
             {
                 "fact_name": "会社がEビザの投資の条件を満たします",
-                "question_text": "会社がEビザの投資（E-2）の条件を満たしますか？",
+                "question_text": "会社がEビザの投資の条件を満たしますか？",
                 "visa_type": "E",
                 "priority": 90,
             },
             {
                 "fact_name": "会社がEビザの貿易の条件を満たします",
-                "question_text": "会社がEビザの貿易（E-1）の条件を満たしますか？",
+                "question_text": "会社がEビザの貿易の条件を満たしますか？",
                 "visa_type": "E",
                 "priority": 90,
             },
@@ -326,7 +326,7 @@ async def migrate_derivable_questions(
             },
             {
                 "fact_name": "申請者がEビザのスタッフの条件を満たします",
-                "question_text": "申請者がEビザのスタッフ（専門職）の条件を満たしますか？",
+                "question_text": "申請者がEビザのスタッフの条件を満たしますか？",
                 "visa_type": "E",
                 "priority": 80,
             },
@@ -344,13 +344,13 @@ async def migrate_derivable_questions(
             },
             {
                 "fact_name": "Bビザの申請条件を満たす（ESTAの認証は通る）",
-                "question_text": "Bビザの申請条件を満たしますか？（ESTAの認証が通る場合）",
+                "question_text": "Bビザの申請条件を満たしますか？（ESTAの認証は通る）",
                 "visa_type": "B",
                 "priority": 90,
             },
             {
                 "fact_name": "Bビザの申請条件を満たす（ESTAの認証は通らない）",
-                "question_text": "Bビザの申請条件を満たしますか？（ESTAの認証が通らない場合）",
+                "question_text": "Bビザの申請条件を満たしますか？（ESTAの認証は通らない）",
                 "visa_type": "B",
                 "priority": 90,
             },
