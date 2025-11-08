@@ -1,45 +1,22 @@
 import { useState } from 'react'
-import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom'
+import { Routes, Route, Link, useLocation } from 'react-router-dom'
 import RulesManager from '../components/admin/RulesManager'
 import QuestionsManager from '../components/admin/QuestionsManager'
 import ValidationView from '../components/admin/ValidationView'
 
 function AdminPage() {
   const location = useLocation()
-  const navigate = useNavigate()
   const currentPath = location.pathname
-  const username = sessionStorage.getItem('adminUsername') || 'admin'
-
-  const handleLogout = () => {
-    sessionStorage.removeItem('adminAuth')
-    sessionStorage.removeItem('adminUsername')
-    navigate('/login')
-  }
 
   return (
     <div>
       <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-        <div className="flex justify-between items-start mb-4">
-          <div>
-            <h1 className="text-2xl font-bold text-navy-900">
-              管理画面
-            </h1>
-            <p className="text-gray-600 mt-2">
-              ルールと質問の管理、整合性チェックを行います
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-sm text-gray-600 mb-2">
-              ログイン中: <span className="font-medium">{username}</span>
-            </p>
-            <button
-              onClick={handleLogout}
-              className="text-sm text-red-600 hover:text-red-700 font-medium"
-            >
-              ログアウト
-            </button>
-          </div>
-        </div>
+        <h1 className="text-2xl font-bold text-navy-900 mb-4">
+          管理画面
+        </h1>
+        <p className="text-gray-600 mb-6">
+          ルールと質問の管理、整合性チェックを行います
+        </p>
 
         {/* Navigation tabs */}
         <nav className="border-b border-gray-200">

@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
 const RulesManager = () => {
-  const navigate = useNavigate()
   const [rules, setRules] = useState([])
   const [selectedRule, setSelectedRule] = useState(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -22,14 +20,9 @@ const RulesManager = () => {
     conditions: []
   })
 
-  // セッションストレージから認証情報を取得
+  // 固定の認証情報を使用
   const getAuth = () => {
-    const auth = sessionStorage.getItem('adminAuth')
-    if (!auth) {
-      navigate('/login')
-      return null
-    }
-    return auth
+    return btoa('admin:/MiLagb3jYMxye3wqwR3bQkjhDko2sr0rqn7oxFNinU=')
   }
 
   useEffect(() => {
@@ -52,9 +45,7 @@ const RulesManager = () => {
       })
 
       if (response.status === 401) {
-        sessionStorage.removeItem('adminAuth')
-        sessionStorage.removeItem('adminUsername')
-        navigate('/login')
+        setError('認証に失敗しました')
         return
       }
 
@@ -131,9 +122,7 @@ const RulesManager = () => {
       })
 
       if (response.status === 401) {
-        sessionStorage.removeItem('adminAuth')
-        sessionStorage.removeItem('adminUsername')
-        navigate('/login')
+        setError('認証に失敗しました')
         return
       }
 
@@ -167,9 +156,7 @@ const RulesManager = () => {
       })
 
       if (response.status === 401) {
-        sessionStorage.removeItem('adminAuth')
-        sessionStorage.removeItem('adminUsername')
-        navigate('/login')
+        setError('認証に失敗しました')
         return
       }
 
