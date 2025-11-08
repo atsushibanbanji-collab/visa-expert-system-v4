@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
 const RulesManager = () => {
+  const navigate = useNavigate()
   const [rules, setRules] = useState([])
   const [selectedRule, setSelectedRule] = useState(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -20,14 +22,26 @@ const RulesManager = () => {
     conditions: []
   })
 
-  const auth = btoa('admin:admin123')
+  // セッションストレージから認証情報を取得
+  const getAuth = () => {
+    const auth = sessionStorage.getItem('adminAuth')
+    if (!auth) {
+      navigate('/login')
+      return null
+    }
+    return auth
+  }
 
   useEffect(() => {
     fetchRules()
   }, [visaTypeFilter])
 
   const fetchRules = async () => {
+    const auth = getAuth()
+    if (!auth) return
+
     setLoading(true)
+    setError(null)
     try {
       const url = visaTypeFilter === 'all'
         ? `${API_BASE_URL}/admin/rules`
@@ -36,10 +50,32 @@ const RulesManager = () => {
       const response = await fetch(url, {
         headers: { 'Authorization': `Basic ${auth}` }
       })
+
+      if (response.status === 401) {
+        sessionStorage.removeItem('adminAuth')
+        sessionStorage.removeItem('adminUsername')
+        navigate('/login')
+        return
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
       const data = await response.json()
-      setRules(data)
+
+      // データが配列であることを確認
+      if (Array.isArray(data)) {
+        setRules(data)
+      } else {
+        console.error('Expected array but got:', data)
+        setError('データ形式が正しくありません')
+        setRules([])
+      }
     } catch (err) {
-      setError('ルールの取得に失敗しました')
+      console.error('Fetch rules error:', err)
+      setError('ルールの取得に失敗しました: ' + err.message)
+      setRules([])
     } finally {
       setLoading(false)
     }
@@ -74,7 +110,11 @@ const RulesManager = () => {
   }
 
   const handleSave = async () => {
+    const auth = getAuth()
+    if (!auth) return
+
     setLoading(true)
+    setError(null)
     try {
       const method = selectedRule ? 'PUT' : 'POST'
       const url = selectedRule
@@ -90,13 +130,22 @@ const RulesManager = () => {
         body: JSON.stringify(formData)
       })
 
+      if (response.status === 401) {
+        sessionStorage.removeItem('adminAuth')
+        sessionStorage.removeItem('adminUsername')
+        navigate('/login')
+        return
+      }
+
       if (response.ok) {
         setIsEditing(false)
         fetchRules()
       } else {
-        setError('保存に失敗しました')
+        const errorData = await response.json().catch(() => ({}))
+        setError(`保存に失敗しました: ${errorData.detail || response.statusText}`)
       }
     } catch (err) {
+      console.error('Save error:', err)
       setError('保存に失敗しました: ' + err.message)
     } finally {
       setLoading(false)
@@ -106,20 +155,33 @@ const RulesManager = () => {
   const handleDelete = async (ruleId) => {
     if (!confirm('このルールを削除しますか？')) return
 
+    const auth = getAuth()
+    if (!auth) return
+
     setLoading(true)
+    setError(null)
     try {
       const response = await fetch(`${API_BASE_URL}/admin/rules/${ruleId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Basic ${auth}` }
       })
 
+      if (response.status === 401) {
+        sessionStorage.removeItem('adminAuth')
+        sessionStorage.removeItem('adminUsername')
+        navigate('/login')
+        return
+      }
+
       if (response.ok) {
         fetchRules()
       } else {
-        setError('削除に失敗しました')
+        const errorData = await response.json().catch(() => ({}))
+        setError(`削除に失敗しました: ${errorData.detail || response.statusText}`)
       }
     } catch (err) {
-      setError('削除に失敗しました')
+      console.error('Delete error:', err)
+      setError('削除に失敗しました: ' + err.message)
     } finally {
       setLoading(false)
     }

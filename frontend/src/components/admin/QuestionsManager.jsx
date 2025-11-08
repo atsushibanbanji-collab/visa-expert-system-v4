@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
 const QuestionsManager = () => {
+  const navigate = useNavigate()
   const [questions, setQuestions] = useState([])
   const [selectedQuestion, setSelectedQuestion] = useState(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -17,14 +19,25 @@ const QuestionsManager = () => {
     priority: 0
   })
 
-  const auth = btoa('admin:admin123')
+  const getAuth = () => {
+    const auth = sessionStorage.getItem('adminAuth')
+    if (!auth) {
+      navigate('/login')
+      return null
+    }
+    return auth
+  }
 
   useEffect(() => {
     fetchQuestions()
   }, [visaTypeFilter])
 
   const fetchQuestions = async () => {
+    const auth = getAuth()
+    if (!auth) return
+
     setLoading(true)
+    setError(null)
     try {
       const url = visaTypeFilter === 'all'
         ? `${API_BASE_URL}/admin/questions`
@@ -33,10 +46,29 @@ const QuestionsManager = () => {
       const response = await fetch(url, {
         headers: { 'Authorization': `Basic ${auth}` }
       })
+
+      if (response.status === 401) {
+        sessionStorage.removeItem('adminAuth')
+        sessionStorage.removeItem('adminUsername')
+        navigate('/login')
+        return
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
       const data = await response.json()
-      setQuestions(data)
+      if (Array.isArray(data)) {
+        setQuestions(data)
+      } else {
+        setError('データ形式が正しくありません')
+        setQuestions([])
+      }
     } catch (err) {
-      setError('質問の取得に失敗しました')
+      console.error('Fetch questions error:', err)
+      setError('質問の取得に失敗しました: ' + err.message)
+      setQuestions([])
     } finally {
       setLoading(false)
     }

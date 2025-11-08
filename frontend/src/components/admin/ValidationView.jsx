@@ -1,25 +1,50 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
 const ValidationView = () => {
+  const navigate = useNavigate()
   const [visaType, setVisaType] = useState('E')
   const [validationResult, setValidationResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
-  const auth = btoa('admin:admin123')
+  const getAuth = () => {
+    const auth = sessionStorage.getItem('adminAuth')
+    if (!auth) {
+      navigate('/login')
+      return null
+    }
+    return auth
+  }
 
   const runValidation = async () => {
+    const auth = getAuth()
+    if (!auth) return
+
     setLoading(true)
     setError(null)
     try {
       const response = await fetch(`${API_BASE_URL}/admin/validate/${visaType}`, {
         headers: { 'Authorization': `Basic ${auth}` }
       })
+
+      if (response.status === 401) {
+        sessionStorage.removeItem('adminAuth')
+        sessionStorage.removeItem('adminUsername')
+        navigate('/login')
+        return
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
       const data = await response.json()
       setValidationResult(data)
     } catch (err) {
+      console.error('Validation error:', err)
       setError('検証に失敗しました: ' + err.message)
     } finally {
       setLoading(false)
