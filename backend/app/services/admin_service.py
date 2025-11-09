@@ -34,6 +34,7 @@ class AdminService:
             conclusion_value=rule_data.conclusion_value,
             operator=rule_data.operator,
             priority=rule_data.priority,
+            is_final_conclusion=rule_data.is_final_conclusion,
         )
         self.db.add(rule)
         self.db.flush()  # Get rule.id
@@ -95,6 +96,10 @@ class AdminService:
         if rule_data.priority is not None and rule_data.priority != rule.priority:
             changes["priority"] = {"old": rule.priority, "new": rule_data.priority}
             rule.priority = rule_data.priority
+
+        if rule_data.is_final_conclusion is not None and rule_data.is_final_conclusion != rule.is_final_conclusion:
+            changes["is_final_conclusion"] = {"old": rule.is_final_conclusion, "new": rule_data.is_final_conclusion}
+            rule.is_final_conclusion = rule_data.is_final_conclusion
 
         # Update conditions if provided
         if rule_data.conditions is not None:

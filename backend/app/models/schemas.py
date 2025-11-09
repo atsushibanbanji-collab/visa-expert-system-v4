@@ -57,6 +57,7 @@ class RuleCreate(BaseModel):
     conclusion_value: bool = True
     operator: str = "AND"
     priority: int = 0
+    is_final_conclusion: bool = False
     conditions: List[ConditionCreate]
 
 
@@ -67,6 +68,7 @@ class RuleUpdate(BaseModel):
     conclusion_value: Optional[bool] = None
     operator: Optional[str] = None
     priority: Optional[int] = None
+    is_final_conclusion: Optional[bool] = None
     conditions: Optional[List[ConditionCreate]] = None
 
 
@@ -78,6 +80,7 @@ class RuleResponse(BaseModel):
     conclusion_value: bool
     operator: str
     priority: int
+    is_final_conclusion: bool
     conditions: List[Dict[str, Any]]
     created_at: datetime
     updated_at: datetime

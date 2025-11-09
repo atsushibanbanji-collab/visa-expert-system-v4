@@ -327,12 +327,21 @@ class InferenceEngine:
     def get_conclusions(self) -> List[str]:
         """Get final visa application conclusions only (not intermediate facts)"""
         conclusions = []
+
+        # Get all rules to check is_final_conclusion flag
+        all_rules = self._get_applicable_rules()
+        final_conclusion_facts = set()
+
+        for rule in all_rules:
+            if rule.is_final_conclusion:
+                final_conclusion_facts.add(rule.conclusion)
+
+        # Return derived facts that are marked as final conclusions
         for fact_name, value in self.facts.items():
             if fact_name in self.derived_facts and value:
-                # Only return final conclusions (visa application results)
-                # These end with "ビザでの申請ができます" or "ビザの申請ができます"
-                if "申請ができます" in fact_name or "申請が可能です" in fact_name:
+                if fact_name in final_conclusion_facts:
                     conclusions.append(fact_name)
+
         return conclusions
 
     def is_consultation_finished(self) -> bool:

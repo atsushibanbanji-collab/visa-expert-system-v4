@@ -15,6 +15,7 @@ class Rule(Base):
     conclusion_value = Column(Boolean, default=True)
     operator = Column(String, default="AND")  # AND or OR
     priority = Column(Integer, default=0)
+    is_final_conclusion = Column(Boolean, default=False)  # ビザ申請可否を示す最終結論か
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
