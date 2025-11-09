@@ -27,12 +27,12 @@ def migrate():
         print("\n[1] rulesテーブルにis_final_conclusionカラムを追加...")
         try:
             db.execute(text(
-                "ALTER TABLE rules ADD COLUMN is_final_conclusion BOOLEAN DEFAULT 0"
+                "ALTER TABLE rules ADD COLUMN is_final_conclusion BOOLEAN DEFAULT FALSE"
             ))
             db.commit()
             print("   ✓ カラム追加完了")
         except Exception as e:
-            if "duplicate column name" in str(e).lower():
+            if "duplicate column name" in str(e).lower() or "already exists" in str(e).lower():
                 print("   - カラムは既に存在します（スキップ）")
                 db.rollback()
             else:
@@ -59,7 +59,7 @@ def migrate():
             db.execute(text(
                 """
                 UPDATE rules
-                SET is_final_conclusion = 1
+                SET is_final_conclusion = TRUE
                 WHERE id = :id
                 """
             ), {"id": rule[0]})
@@ -70,13 +70,13 @@ def migrate():
         # Step 3: 結果確認
         print("\n[3] 結果確認...")
         result = db.execute(text(
-            "SELECT COUNT(*) FROM rules WHERE is_final_conclusion = 1"
+            "SELECT COUNT(*) FROM rules WHERE is_final_conclusion = TRUE"
         ))
         count = result.fetchone()[0]
         print(f"   最終結論ルール: {count}件")
 
         result = db.execute(text(
-            "SELECT COUNT(*) FROM rules WHERE is_final_conclusion = 0"
+            "SELECT COUNT(*) FROM rules WHERE is_final_conclusion = FALSE"
         ))
         count = result.fetchone()[0]
         print(f"   中間ルール: {count}件")
