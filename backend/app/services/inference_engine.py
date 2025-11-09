@@ -233,44 +233,64 @@ class InferenceEngine:
 
         Returns:
             次に質問すべきfact_name、またはNone
+
+        質問の優先順位:
+        1. 同じルール内の導出不可能な条件（直接質問）
+        2. 同じルール内の高優先度（80以上）導出可能な条件
+        3. 同じルール内の低優先度導出可能な条件（詳細質問）
+        4. 「わからない」条件の詳細質問（最後の手段）
         """
+        # 第1パス: 導出不可能な条件を優先（直接質問）
         for condition in rule.conditions:
             fact_name = condition.fact_name
 
-            # 既に分かっている事実（「はい」「いいえ」で回答済み）
-            if fact_name in self.facts:
+            # 既知または未知の事実はスキップ
+            if fact_name in self.facts or fact_name in self.unknown_facts:
                 continue
 
-            # 「わからない」で保留中 → 詳細質問に進む
-            if fact_name in self.unknown_facts:
-                # この条件が導出可能なら、詳細な質問を探す
-                if self._is_derivable(fact_name):
-                    question = self._find_question_for_goal(fact_name, visited)
-                    if question:
-                        return question
-                # 導出できない場合は次の条件へ
+            # 導出不可能なら直接質問
+            if not self._is_derivable(fact_name):
+                return fact_name
+
+        # 第2パス: 高優先度（80以上）の導出可能な条件
+        for condition in rule.conditions:
+            fact_name = condition.fact_name
+
+            if fact_name in self.facts or fact_name in self.unknown_facts:
                 continue
 
-            # この条件は他のルールで導出可能か？
             if self._is_derivable(fact_name):
-                # 導出可能な事実の質問優先度をチェック
                 question_priority = self._get_question_priority(fact_name)
-
-                # 高優先度（80以上）の質問は直接聞く（まだ質問していない場合）
                 if question_priority >= 80 and fact_name not in self.asked_questions:
                     return fact_name
 
-                # 低優先度の場合は、再帰的に詳細な質問を探す
+        # 第3パス: 低優先度の導出可能な条件（詳細質問へ）
+        for condition in rule.conditions:
+            fact_name = condition.fact_name
+
+            if fact_name in self.facts or fact_name in self.unknown_facts:
+                continue
+
+            if self._is_derivable(fact_name):
+                # 再帰的に詳細な質問を探す
                 question = self._find_question_for_goal(fact_name, visited)
                 if question:
                     return question
                 # 詳細質問が見つからない場合は、この導出可能な事実を質問する
                 return fact_name
 
-            # 導出不可能なので、直接質問する
-            return fact_name
+        # 第4パス: 「わからない」条件の詳細質問（最後の手段）
+        for condition in rule.conditions:
+            fact_name = condition.fact_name
 
-        # このルールの全条件が既知または導出不可能
+            if fact_name in self.unknown_facts:
+                # この条件が導出可能なら、詳細な質問を探す
+                if self._is_derivable(fact_name):
+                    question = self._find_question_for_goal(fact_name, visited)
+                    if question:
+                        return question
+
+        # このルールの全条件が既知または質問できない
         return None
 
     def _is_derivable(self, fact_name: str) -> bool:
