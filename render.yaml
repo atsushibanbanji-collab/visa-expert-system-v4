@@ -4,7 +4,7 @@ services:
     env: python
     region: oregon
     buildCommand: "cd backend && pip install -r requirements.txt"
-    startCommand: "cd backend && python migrate_rules.py && python migrate_add_derivable_questions.py && python migrate_add_is_final_conclusion.py && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    startCommand: "cd backend && python migrate_add_is_final_conclusion.py && python migrate_rules.py && python migrate_add_derivable_questions.py && uvicorn app.main:app --host 0.0.0.0 --port $PORT"
     envVars:
       - key: DATABASE_URL
         fromDatabase:

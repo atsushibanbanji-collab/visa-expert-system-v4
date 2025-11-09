@@ -55,14 +55,19 @@ def load_rules_from_json(json_file: str):
             # Auto-detect visa type
             visa_type = auto_detect_visa_type(rule_data)
 
+            # Auto-detect if this is a final conclusion
+            conclusion = rule_data["conclusion"]
+            is_final_conclusion = "申請ができます" in conclusion or "申請が可能です" in conclusion
+
             # Create rule
             rule = Rule(
                 rule_id=rule_data["id"],
                 visa_type=visa_type,
-                conclusion=rule_data["conclusion"],
+                conclusion=conclusion,
                 conclusion_value=rule_data.get("conclusion_value", True),
                 operator=rule_data.get("operator", "AND"),
                 priority=rule_data.get("priority", 0),
+                is_final_conclusion=is_final_conclusion,
             )
             db.add(rule)
             db.flush()  # Get rule.id
