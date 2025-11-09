@@ -26,17 +26,28 @@ def migrate():
         # Step 1: カラムを追加
         print("\n[1] rulesテーブルにis_final_conclusionカラムを追加...")
         try:
-            db.execute(text(
-                "ALTER TABLE rules ADD COLUMN is_final_conclusion BOOLEAN DEFAULT FALSE"
+            # Check if column already exists
+            result = db.execute(text(
+                """
+                SELECT column_name
+                FROM information_schema.columns
+                WHERE table_name='rules' AND column_name='is_final_conclusion'
+                """
             ))
-            db.commit()
-            print("   ✓ カラム追加完了")
-        except Exception as e:
-            if "duplicate column name" in str(e).lower() or "already exists" in str(e).lower():
+            exists = result.fetchone()
+
+            if exists:
                 print("   - カラムは既に存在します（スキップ）")
-                db.rollback()
             else:
-                raise
+                db.execute(text(
+                    "ALTER TABLE rules ADD COLUMN is_final_conclusion BOOLEAN DEFAULT FALSE"
+                ))
+                db.commit()
+                print("   ✓ カラム追加完了")
+        except Exception as e:
+            print(f"   ! エラー: {e}")
+            db.rollback()
+            # Continue anyway - the column might already exist
 
         # Step 2: 既存データにフラグをセット
         print("\n[2] 最終結論ルールにフラグをセット...")

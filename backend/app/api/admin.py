@@ -56,6 +56,7 @@ async def get_rules(
                 conclusion_value=rule.conclusion_value,
                 operator=rule.operator,
                 priority=rule.priority,
+                is_final_conclusion=rule.is_final_conclusion if hasattr(rule, 'is_final_conclusion') else False,
                 conditions=[
                     {"fact_name": c.fact_name, "expected_value": c.expected_value}
                     for c in rule.conditions
@@ -88,6 +89,7 @@ async def get_rule(
         conclusion_value=rule.conclusion_value,
         operator=rule.operator,
         priority=rule.priority,
+        is_final_conclusion=rule.is_final_conclusion if hasattr(rule, 'is_final_conclusion') else False,
         conditions=[
             {"fact_name": c.fact_name, "expected_value": c.expected_value}
             for c in rule.conditions
@@ -115,6 +117,7 @@ async def create_rule(
         conclusion_value=rule.conclusion_value,
         operator=rule.operator,
         priority=rule.priority,
+        is_final_conclusion=rule.is_final_conclusion if hasattr(rule, 'is_final_conclusion') else False,
         conditions=[
             {"fact_name": c.fact_name, "expected_value": c.expected_value}
             for c in rule.conditions
@@ -146,6 +149,7 @@ async def update_rule(
         conclusion_value=rule.conclusion_value,
         operator=rule.operator,
         priority=rule.priority,
+        is_final_conclusion=rule.is_final_conclusion if hasattr(rule, 'is_final_conclusion') else False,
         conditions=[
             {"fact_name": c.fact_name, "expected_value": c.expected_value}
             for c in rule.conditions

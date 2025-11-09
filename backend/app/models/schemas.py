@@ -80,7 +80,7 @@ class RuleResponse(BaseModel):
     conclusion_value: bool
     operator: str
     priority: int
-    is_final_conclusion: bool
+    is_final_conclusion: bool = False
     conditions: List[Dict[str, Any]]
     created_at: datetime
     updated_at: datetime
