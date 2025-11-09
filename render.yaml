@@ -18,11 +18,8 @@ services:
   - type: web
     name: visa-expert-frontend-v4
     env: static
-    buildCommand: "cd frontend && npm install && npm run build"
+    buildCommand: "cd frontend && VITE_API_URL=https://visa-expert-backend-v4.onrender.com/api npm install && npm run build"
     staticPublishPath: frontend/dist
-    envVars:
-      - key: VITE_API_URL
-        value: https://visa-expert-backend-v4.onrender.com/api
     routes:
       - type: rewrite
         source: /*
