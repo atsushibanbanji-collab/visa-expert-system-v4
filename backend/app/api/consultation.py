@@ -227,3 +227,28 @@ async def debug_all_rules(db: Session = Depends(get_db)):
             for r in rules
         ]
     }
+
+
+@router.get("/debug/questions")
+async def debug_questions(visa_type: str = None, db: Session = Depends(get_db)):
+    """デバッグ: Questionテーブルの内容を確認"""
+    from app.models.models import Question
+
+    query = db.query(Question)
+    if visa_type:
+        query = query.filter(Question.visa_type == visa_type)
+
+    questions = query.order_by(Question.priority.desc()).all()
+
+    return {
+        "total_questions": len(questions),
+        "questions": [
+            {
+                "fact_name": q.fact_name,
+                "question_text": q.question_text,
+                "visa_type": q.visa_type,
+                "priority": q.priority,
+            }
+            for q in questions
+        ]
+    }
