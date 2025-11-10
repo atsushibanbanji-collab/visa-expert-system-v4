@@ -16,16 +16,18 @@ def auto_detect_visa_type(rule_data: dict) -> str:
     """Auto-detect visa type from rule conclusion"""
     conclusion = rule_data.get("conclusion", "")
 
-    if "Eビザ" in conclusion or "E-" in conclusion:
+    # Check H-1B and J-1 BEFORE B visa to avoid false matches
+    # (H-1Bビザ contains "Bビザ", so H-1B must be checked first)
+    if "H-1B" in conclusion or "H1B" in conclusion:
+        return "H-1B"
+    elif "J-1" in conclusion or "J1" in conclusion:
+        return "J-1"
+    elif "Eビザ" in conclusion or "E-" in conclusion:
         return "E"
     elif "Lビザ" in conclusion or "Blanket L" in conclusion:
         return "L"
     elif "Bビザ" in conclusion or "B-1" in conclusion or "B-2" in conclusion:
         return "B"
-    elif "H-1B" in conclusion or "H1B" in conclusion:
-        return "H-1B"
-    elif "J-1" in conclusion or "J1" in conclusion:
-        return "J-1"
 
     return None
 
