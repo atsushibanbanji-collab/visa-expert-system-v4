@@ -189,10 +189,8 @@ class InferenceEngine:
                 # 高優先度の導出可能な質問は直接聞く
                 return goal
 
-        # 代替パスを評価：未評価でないルールを優先
-        available_rules = []
-        uncertain_rules = []
-
+        # 全ルールを優先度順に評価（代替パス優先は廃止）
+        # ルール内の条件を順番に完全に消化してから次のルールへ
         for rule in rules:
             # 既にこのルールが発火している
             if rule.rule_id in self.fired_rules:
@@ -202,20 +200,7 @@ class InferenceEngine:
             if self._is_rule_impossible(rule):
                 continue
 
-            # このルールが「わからない」条件を含むかチェック
-            if self._has_unknown_conditions(rule):
-                uncertain_rules.append(rule)
-            else:
-                available_rules.append(rule)
-
-        # まず「わからない」条件を含まないルールを試す（代替パス）
-        for rule in available_rules:
-            question = self._find_question_for_rule(rule, visited.copy())
-            if question:
-                return question
-
-        # 代替パスがない場合、「わからない」条件を含むルールも試す
-        for rule in uncertain_rules:
+            # このルールの質問を探す
             question = self._find_question_for_rule(rule, visited.copy())
             if question:
                 return question
@@ -227,12 +212,20 @@ class InferenceEngine:
         """
         指定されたルールを発火させるために必要な質問を探す
 
+        重要：条件を順番に評価し、各条件の詳細質問を完全に消化してから次の条件へ進む
+
         Args:
             rule: 評価するルール
             visited: 循環参照を避けるための訪問済みゴールセット
 
         Returns:
             次に質問すべきfact_name、またはNone
+
+        動作:
+        1. 条件Aを評価 → わからない
+        2. 条件Aの詳細質問を全て消化（再帰的に探索）
+        3. 詳細質問がなくなったら条件Bへ
+        4. 条件Bを評価...
         """
         for condition in rule.conditions:
             fact_name = condition.fact_name
@@ -241,14 +234,15 @@ class InferenceEngine:
             if fact_name in self.facts:
                 continue
 
-            # 「わからない」で保留中 → 詳細質問に進む
+            # 「わからない」で保留中 → 詳細質問を完全に消化してから次の条件へ
             if fact_name in self.unknown_facts:
                 # この条件が導出可能なら、詳細な質問を探す
                 if self._is_derivable(fact_name):
                     question = self._find_question_for_goal(fact_name, visited)
                     if question:
                         return question
-                # 導出できない場合は次の条件へ
+                    # 詳細質問がなくなった → 次の条件へ
+                # 導出できない場合も次の条件へ
                 continue
 
             # この条件は他のルールで導出可能か？
