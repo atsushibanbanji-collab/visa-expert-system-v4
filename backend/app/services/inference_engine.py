@@ -14,9 +14,9 @@ class InferenceEngine:
         self.asked_questions: Set[str] = set()  # Questions already asked to user
         self.fired_rules: List[str] = []  # Rules that have been applied
         self.unknown_facts: Set[str] = set()  # Facts answered as "分からない"
-        self.goal = f"{visa_type}ビザでの申請ができます"  # Final goal
         self.all_rules = None  # Cache for all rules
         self.rules_by_conclusion = {}  # Cache: conclusion -> rules
+        self.final_goals: List[str] = []  # All possible final goals (multiple for L visa etc.)
 
     def add_fact(self, fact_name: str, value: bool):
         """Add a fact to the knowledge base"""
@@ -150,7 +150,42 @@ class InferenceEngine:
         3. 事実が導出可能なら、再帰的にその事実をゴールとして探索
         4. 導出不可能なら、ユーザーに質問
         """
-        return self._find_question_for_goal(self.goal)
+        # 最終ゴールを動的に取得（is_final_conclusionフラグを使用）
+        if not self.final_goals:
+            self.final_goals = self._get_final_goals()
+
+        # 全ての最終ゴールを試す
+        for goal in self.final_goals:
+            # 既に達成されているゴールはスキップ
+            if goal in self.facts and self.facts[goal]:
+                continue
+
+            question = self._find_question_for_goal(goal)
+            if question:
+                return question
+
+        # 全ゴールについて質問がない
+        return None
+
+    def _get_final_goals(self) -> List[str]:
+        """is_final_conclusionフラグを持つルールの結論を取得"""
+        all_rules = self._get_applicable_rules()
+        goals = []
+
+        for rule in all_rules:
+            if rule.is_final_conclusion and rule.conclusion_value:
+                goals.append(rule.conclusion)
+
+        # 優先度順にソート
+        goals_with_priority = []
+        for goal in goals:
+            rules = self._get_rules_with_conclusion(goal)
+            if rules:
+                max_priority = max(r.priority for r in rules)
+                goals_with_priority.append((goal, max_priority))
+
+        goals_with_priority.sort(key=lambda x: x[1], reverse=True)
+        return [g[0] for g in goals_with_priority]
 
     def _find_question_for_goal(self, goal: str, visited: Set[str] = None) -> Optional[str]:
         """
@@ -342,6 +377,16 @@ class InferenceEngine:
         """Check if consultation is finished (no more questions to ask)"""
         return self.get_next_question() is None
 
+    def is_any_goal_achieved(self) -> bool:
+        """Check if any final goal has been achieved"""
+        if not self.final_goals:
+            self.final_goals = self._get_final_goals()
+
+        for goal in self.final_goals:
+            if goal in self.facts and self.facts[goal]:
+                return True
+        return False
+
     def get_missing_critical_info(self) -> List[str]:
         """
         診断が完了できない場合の不足している重要情報を取得
@@ -351,31 +396,37 @@ class InferenceEngine:
         """
         missing_info = []
 
-        # ゴールが達成されていない場合
-        if self.goal not in self.facts or not self.facts[self.goal]:
-            # ゴールに到達するためのルールを取得
-            rules = self._get_rules_with_conclusion(self.goal)
+        # 最終ゴールを取得
+        if not self.final_goals:
+            self.final_goals = self._get_final_goals()
 
-            for rule in rules:
-                # このルールが発火不可能かチェック
-                if self._is_rule_impossible(rule):
-                    continue
+        # 全ての最終ゴールについてチェック
+        for goal in self.final_goals:
+            # ゴールが達成されていない場合
+            if goal not in self.facts or not self.facts[goal]:
+                # ゴールに到達するためのルールを取得
+                rules = self._get_rules_with_conclusion(goal)
 
-                # このルールの未確定条件を収集
-                for condition in rule.conditions:
-                    fact_name = condition.fact_name
-
-                    # 既に確定している条件はスキップ
-                    if fact_name in self.facts:
+                for rule in rules:
+                    # このルールが発火不可能かチェック
+                    if self._is_rule_impossible(rule):
                         continue
 
-                    # 「わからない」と回答された条件
-                    if fact_name in self.unknown_facts:
-                        # この条件が他のルールで導出できないか確認
-                        if not self._can_derive_from_alternative(fact_name):
-                            # 代替パスがない重要情報
-                            if fact_name not in missing_info:
-                                missing_info.append(fact_name)
+                    # このルールの未確定条件を収集
+                    for condition in rule.conditions:
+                        fact_name = condition.fact_name
+
+                        # 既に確定している条件はスキップ
+                        if fact_name in self.facts:
+                            continue
+
+                        # 「わからない」と回答された条件
+                        if fact_name in self.unknown_facts:
+                            # この条件が他のルールで導出できないか確認
+                            if not self._can_derive_from_alternative(fact_name):
+                                # 代替パスがない重要情報
+                                if fact_name not in missing_info:
+                                    missing_info.append(fact_name)
 
         return missing_info
 

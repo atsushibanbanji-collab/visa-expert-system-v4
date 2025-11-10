@@ -86,7 +86,7 @@ async def answer_question(
     is_finished = _current_engine.is_consultation_finished()
 
     # Check if diagnosis failed due to insufficient information
-    goal_achieved = _current_engine.goal in _current_engine.facts and _current_engine.facts[_current_engine.goal]
+    goal_achieved = _current_engine.is_any_goal_achieved()
     insufficient_info = is_finished and not goal_achieved and len(_current_engine.unknown_facts) > 0
 
     # Get missing critical information if diagnosis is incomplete
