@@ -197,6 +197,7 @@ async def debug_rules(visa_type: str, db: Session = Depends(get_db)):
         "total_rules": len(rules),
         "rules": [
             {
+                "id": r.id,  # データベースの主キー
                 "rule_id": r.rule_id,
                 "visa_type": r.visa_type,
                 "conclusion": r.conclusion,
