@@ -58,10 +58,28 @@ def migrate_add_derivable_questions():
                 "priority": 80,
             },
             {
+                "fact_name": "申請者がLビザ（Individual）の条件を満たします",
+                "question_text": "申請者がLビザ（Individual）の条件を満たしますか？",
+                "visa_type": "L",
+                "priority": 90,
+            },
+            {
+                "fact_name": "会社がBlanket Lビザの条件を満たします",
+                "question_text": "会社がBlanket Lビザの条件を満たしますか？",
+                "visa_type": "L",
+                "priority": 85,
+            },
+            {
+                "fact_name": "申請者がBlanket Lビザの条件を満たします",
+                "question_text": "申請者がBlanket Lビザの条件を満たしますか？",
+                "visa_type": "L",
+                "priority": 85,
+            },
+            {
                 "fact_name": "Blanket Lビザのマネージャーまたはスタッフの条件を満たします",
                 "question_text": "Blanket Lビザのマネージャーまたはスタッフの条件を満たしますか？",
                 "visa_type": "L",
-                "priority": 85,
+                "priority": 80,
             },
             {
                 "fact_name": "Bビザの申請ができます",
