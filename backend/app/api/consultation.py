@@ -176,3 +176,54 @@ async def get_visualization(db: Session = Depends(get_db)):
     result = _current_engine.get_rule_visualization()
     result["current_question_fact"] = _current_question_fact
     return schemas.VisualizationResponse(**result)
+
+
+@router.get("/debug")
+async def debug_rules(visa_type: str, db: Session = Depends(get_db)):
+    """デバッグ: 指定されたvisa_typeのルールをデータベースから取得"""
+    from app.models.models import Rule
+    from sqlalchemy.orm import joinedload
+
+    rules = (
+        db.query(Rule)
+        .options(joinedload(Rule.conditions))
+        .filter(Rule.visa_type == visa_type)
+        .order_by(Rule.priority.desc())
+        .all()
+    )
+
+    return {
+        "visa_type": visa_type,
+        "total_rules": len(rules),
+        "rules": [
+            {
+                "rule_id": r.rule_id,
+                "visa_type": r.visa_type,
+                "conclusion": r.conclusion,
+                "priority": r.priority,
+                "is_final_conclusion": r.is_final_conclusion if hasattr(r, 'is_final_conclusion') else False,
+            }
+            for r in rules
+        ]
+    }
+
+
+@router.get("/debug/all-rules")
+async def debug_all_rules(db: Session = Depends(get_db)):
+    """デバッグ: すべてのルールとそのvisa_typeを取得"""
+    from app.models.models import Rule
+
+    rules = db.query(Rule).order_by(Rule.rule_id).all()
+
+    return {
+        "total_rules": len(rules),
+        "rules": [
+            {
+                "rule_id": r.rule_id,
+                "visa_type": r.visa_type,
+                "conclusion": r.conclusion,
+                "priority": r.priority,
+            }
+            for r in rules
+        ]
+    }
