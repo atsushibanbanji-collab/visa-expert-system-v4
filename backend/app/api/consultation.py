@@ -40,7 +40,7 @@ async def start_consultation(
         next_question=next_question,
         conclusions=[],
         is_finished=next_question is None,
-        unknown_facts=list(_current_engine.unknown_facts),
+        unknown_facts=_current_engine.get_relevant_unknown_facts(),
         insufficient_info=False,
         missing_critical_info=[]
     )
@@ -98,7 +98,7 @@ async def answer_question(
         next_question=next_question,
         conclusions=conclusions,
         is_finished=is_finished,
-        unknown_facts=list(_current_engine.unknown_facts),
+        unknown_facts=_current_engine.get_relevant_unknown_facts(),
         insufficient_info=insufficient_info,
         missing_critical_info=missing_critical_info
     )

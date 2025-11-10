@@ -413,6 +413,59 @@ class InferenceEngine:
 
         return False
 
+    def get_relevant_unknown_facts(self) -> List[str]:
+        """
+        表示すべき「わからない」条件を取得（フィルタリング済み）
+
+        以下を除外：
+        1. 詳細質問で最終的に導出された条件（factsに存在）
+        2. OR条件で他の条件が満たされたルールの「わからない」条件
+
+        Returns:
+            表示すべき「わからない」条件のリスト
+        """
+        relevant_unknowns = set()
+
+        for unknown_fact in self.unknown_facts:
+            # 1. 最終的に導出された条件は除外
+            if unknown_fact in self.facts:
+                continue
+
+            # 2. このunknown_factがOR条件の一部で、他の条件が満たされている場合は除外
+            should_exclude = False
+            rules_with_this_fact = self._get_all_rules()
+
+            for rule in rules_with_this_fact:
+                # このルールが発火していない場合はスキップ
+                if rule.rule_id not in self.fired_rules:
+                    continue
+
+                # このルールの条件にunknown_factが含まれているか
+                has_this_unknown = any(
+                    cond.fact_name == unknown_fact for cond in rule.conditions
+                )
+
+                if has_this_unknown and rule.operator == "OR":
+                    # OR条件で、他の条件が満たされている場合は除外
+                    other_satisfied = any(
+                        cond.fact_name in self.facts
+                        and self.facts[cond.fact_name] == cond.expected_value
+                        and cond.fact_name != unknown_fact
+                        for cond in rule.conditions
+                    )
+                    if other_satisfied:
+                        should_exclude = True
+                        break
+
+            if not should_exclude:
+                relevant_unknowns.add(unknown_fact)
+
+        return list(relevant_unknowns)
+
+    def _get_all_rules(self) -> List[Rule]:
+        """全ルールを取得（キャッシュ使用）"""
+        return self._get_applicable_rules()
+
     def get_rule_visualization(self) -> Dict:
         """
         推論過程の可視化用データを生成
