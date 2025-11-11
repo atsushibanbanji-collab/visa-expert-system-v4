@@ -148,10 +148,15 @@ async def go_back(db: Session = Depends(get_db)):
             if fact_name in _current_engine.asked_questions:
                 _current_engine.asked_questions.remove(fact_name)
 
-    # Clear derived facts, fired rules, and unknown facts (including cascading rules)
+    # Keep only unknown_facts from questions in history (before current question)
+    unknown_facts_snapshot = set(_current_engine.unknown_facts)  # Copy to avoid modification during iteration
+    for fact_name in unknown_facts_snapshot:
+        if fact_name not in facts_to_keep:
+            _current_engine.unknown_facts.discard(fact_name)
+
+    # Clear derived facts, fired rules (including cascading rules)
     _current_engine.derived_facts.clear()
     _current_engine.fired_rules.clear()
-    _current_engine.unknown_facts.clear()
 
     # Re-derive facts from remaining known facts (only once)
     _current_engine.forward_chain()
