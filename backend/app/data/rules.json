@@ -263,7 +263,7 @@
       "operator": "OR",
       "conclusion": "Bビザの申請ができます",
       "conclusion_value": true,
-      "priority": 100
+      "priority": 101
     },
     {
       "id": "rule_24",
