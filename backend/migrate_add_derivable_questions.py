@@ -82,12 +82,6 @@ def migrate_add_derivable_questions():
                 "priority": 80,
             },
             {
-                "fact_name": "Bビザの申請ができます",
-                "question_text": "Bビザの申請ができますか？",
-                "visa_type": "B",
-                "priority": 95,
-            },
-            {
                 "fact_name": "Bビザの申請条件を満たす（ESTAの認証は通る）",
                 "question_text": "Bビザの申請条件を満たしますか？（ESTAの認証は通る）",
                 "visa_type": "B",
