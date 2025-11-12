@@ -63,6 +63,27 @@ function ConsultationPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question, answer }),
       })
+
+      // Check if session was lost (404 error)
+      if (response.status === 404) {
+        const errorData = await response.json()
+        if (errorData.detail && errorData.detail.includes('Session not found')) {
+          // Session lost - automatically restart and retry
+          console.warn('Session lost, restarting consultation...')
+          setError('セッションが失われました。診断を再開しています...')
+
+          if (selectedVisaType) {
+            // Restart consultation with same visa type
+            await startConsultation(selectedVisaType)
+            // Retry the answer after restart
+            return await handleAnswer(question, answer)
+          } else {
+            setError('セッションが失われました。最初からやり直してください。')
+            return
+          }
+        }
+      }
+
       const data = await response.json()
 
       setCurrentQuestion(data.next_question)
