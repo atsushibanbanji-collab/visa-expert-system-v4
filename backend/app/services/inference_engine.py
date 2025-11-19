@@ -274,21 +274,17 @@ class InferenceEngine:
 
             # この条件は他のルールで導出可能か？
             if self._is_derivable(fact_name):
-                # 導出可能な事実の質問優先度をチェック
-                question_priority = self._get_question_priority(fact_name)
-
-                # 高優先度（80以上）の質問は直接聞く（まだ質問していない場合）
-                if question_priority >= 80 and fact_name not in self.asked_questions:
+                # 導出可能な質問（中間質問）は、まだ聞いていなければまず先に聞く
+                # ユーザーが「はい」と答えれば詳細質問をスキップできる（効率化）
+                # ユーザーが「わからない」と答えればunknown_factsに追加され、次回は詳細質問に進む
+                if fact_name not in self.asked_questions:
                     return fact_name
 
-                # 低優先度の場合は、再帰的に詳細な質問を探す
-                question = self._find_question_for_goal(fact_name, visited)
-                if question:
-                    return question
-                # 詳細質問が見つからない場合でも、この導出可能な質問を返す
-                # ユーザーが「はい」と答えれば詳細質問をスキップできる
-                # 「わからない」と答えればunknown_factsに追加され、次回は詳細質問に進む
-                return fact_name
+                # 既に聞いた場合は、次の条件へ
+                # （「はい」「いいえ」で答えられていればfactsに入っているのでline 253でスキップ済み）
+                # （「わからない」で答えられていればunknown_factsに入っているのでline 266-273で処理済み）
+                # ここに到達することはないはずだが、念のためcontinue
+                continue
 
             # 導出不可能なので、直接質問する
             return fact_name
