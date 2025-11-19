@@ -67,6 +67,11 @@ async def answer_question(
     if not _current_engine:
         raise HTTPException(status_code=404, detail="Session not found. Please start consultation first.")
 
+    # Update db session and clear cache to avoid connection pool exhaustion
+    _current_engine.db = db
+    _current_engine.all_rules = None
+    _current_engine.rules_by_conclusion.clear()
+
     # Get fact name from question text
     question = db.query(Question).filter(Question.question_text == request_data.question).first()
     fact_name = question.fact_name if question else request_data.question
