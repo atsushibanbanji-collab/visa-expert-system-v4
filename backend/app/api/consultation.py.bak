@@ -9,8 +9,7 @@ router = APIRouter(prefix="/consultation", tags=["consultation"])
 
 # Global state (single user for now)
 _current_engine = None
-_question_history = []  # List of question texts
-_state_snapshots = []  # List of engine state snapshots (parallel to _question_history)
+_question_history = []
 _visa_type = None
 _current_question_fact = None
 
@@ -21,16 +20,11 @@ async def start_consultation(
     db: Session = Depends(get_db),
 ):
     """診断を開始"""
-    global _current_engine, _question_history, _state_snapshots, _visa_type, _current_question_fact
+    global _current_engine, _question_history, _visa_type, _current_question_fact
 
     _visa_type = request_data.visa_type
     _current_engine = InferenceEngine(db, request_data.visa_type)
     _question_history = []
-    _state_snapshots = []
-
-    # Save initial snapshot (empty state)
-    initial_snapshot = _current_engine.save_snapshot()
-    _state_snapshots.append(initial_snapshot)
 
     # Get first question
     next_question_fact = _current_engine.get_next_question()
@@ -62,7 +56,7 @@ async def answer_question(
     db: Session = Depends(get_db),
 ):
     """質問に回答"""
-    global _current_engine, _question_history, _state_snapshots, _current_question_fact
+    global _current_engine, _question_history, _current_question_fact
 
     if not _current_engine:
         raise HTTPException(status_code=404, detail="Session not found. Please start consultation first.")
@@ -85,10 +79,6 @@ async def answer_question(
         else:
             # 導出可能な質問 → unknown_factsに追加のみ
             _current_engine.add_unknown_fact(fact_name)
-
-    # Save snapshot AFTER answering the question
-    snapshot = _current_engine.save_snapshot()
-    _state_snapshots.append(snapshot)
 
     # Get next question
     next_question_fact = _current_engine.get_next_question()
@@ -121,10 +111,6 @@ async def answer_question(
     # Get missing critical information if diagnosis is incomplete
     missing_critical_info = []
     if insufficient_info:
-        # Update db session and clear cache before checking derivability
-        _current_engine.db = db
-        _current_engine.all_rules = None
-        _current_engine.rules_by_conclusion.clear()
         missing_critical_info = _current_engine.get_missing_critical_info()
 
     return schemas.ConsultationResponse(
@@ -141,47 +127,54 @@ async def answer_question(
 @router.post("/back")
 async def go_back(db: Session = Depends(get_db)):
     """前の質問に戻る"""
-    global _current_engine, _question_history, _state_snapshots, _current_question_fact
+    global _current_engine, _question_history, _current_question_fact
 
     if not _current_engine:
         raise HTTPException(status_code=404, detail="Session not found. Please start consultation first.")
 
     if len(_question_history) <= 1:
-        # Already at first question or no questions yet
         current_question = _question_history[0] if _question_history else None
         if current_question:
             question = db.query(Question).filter(Question.question_text == current_question).first()
             _current_question_fact = question.fact_name if question else current_question
-        
-        # Restore to initial state (first snapshot)
-        if _state_snapshots:
-            _current_engine.restore_snapshot(_state_snapshots[0])
-            # Update db session after restoration
-            _current_engine.db = db
-            _current_engine.all_rules = None
-            _current_engine.rules_by_conclusion.clear()
-        
         return {"current_question": current_question}
 
-    # Remove last question and its snapshot
-    _question_history.pop()
-    _state_snapshots.pop()
+    # Remove last question
+    last_question = _question_history.pop()
 
-    # Get current question (now the last one in history)
+    # Return current question
     current_question = _question_history[-1] if _question_history else None
 
-    # Restore engine state from the last snapshot
-    if _state_snapshots:
-        _current_engine.restore_snapshot(_state_snapshots[-1])
-        # Update db session after restoration
-        _current_engine.db = db
-        _current_engine.all_rules = None
-        _current_engine.rules_by_conclusion.clear()
+    # Get fact names for questions that should remain (excluding current question)
+    # Current question will be re-asked, so we don't keep its fact
+    facts_to_keep = set()
+    for q_text in _question_history[:-1] if len(_question_history) > 0 else []:
+        q = db.query(Question).filter(Question.question_text == q_text).first()
+        if q:
+            facts_to_keep.add(q.fact_name)
 
     # Update current question fact
     if current_question:
         question = db.query(Question).filter(Question.question_text == current_question).first()
         _current_question_fact = question.fact_name if question else current_question
+
+    # Keep only the facts from questions in history (before current question)
+    # Remove all other facts including derived facts
+    facts_snapshot = dict(_current_engine.facts)  # Copy to avoid modification during iteration
+    for fact_name in facts_snapshot:
+        if fact_name not in facts_to_keep:
+            if fact_name in _current_engine.facts:
+                del _current_engine.facts[fact_name]
+            if fact_name in _current_engine.asked_questions:
+                _current_engine.asked_questions.remove(fact_name)
+
+    # Clear derived facts, fired rules, and unknown facts (including cascading rules)
+    _current_engine.derived_facts.clear()
+    _current_engine.fired_rules.clear()
+    _current_engine.unknown_facts.clear()
+
+    # Re-derive facts from remaining known facts (only once)
+    _current_engine.forward_chain()
 
     return {"current_question": current_question}
 

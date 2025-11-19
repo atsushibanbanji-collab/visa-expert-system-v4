@@ -1,5 +1,6 @@
 const DiagnosisPanel = ({
   currentQuestion,
+  isDerivable,
   onAnswer,
   onBack,
   onRestart,

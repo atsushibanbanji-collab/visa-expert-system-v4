@@ -15,6 +15,7 @@ class AnswerRequest(BaseModel):
 
 class ConsultationResponse(BaseModel):
     next_question: Optional[str] = None
+    is_derivable: bool = True  # 現在の質問が他の質問から導出可能か（Falseの時のみ「わからない」選択肢を表示）
     conclusions: List[str] = []
     is_finished: bool = False
     unknown_facts: List[str] = []  # Facts answered as "分からない"

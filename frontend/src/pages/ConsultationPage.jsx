@@ -8,6 +8,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 function ConsultationPage() {
   const [selectedVisaType, setSelectedVisaType] = useState(null)
   const [currentQuestion, setCurrentQuestion] = useState(null)
+  const [isDerivable, setIsDerivable] = useState(true)
   const [conclusions, setConclusions] = useState([])
   const [unknownFacts, setUnknownFacts] = useState([])
   const [isFinished, setIsFinished] = useState(false)
@@ -30,6 +31,7 @@ function ConsultationPage() {
       })
       const data = await response.json()
       setCurrentQuestion(data.next_question)
+      setIsDerivable(data.is_derivable !== undefined ? data.is_derivable : true)
       setQuestionHistory(data.next_question ? [data.next_question] : [])
       setConclusions([])
       setUnknownFacts(data.unknown_facts || [])
@@ -66,6 +68,7 @@ function ConsultationPage() {
       const data = await response.json()
 
       setCurrentQuestion(data.next_question)
+      setIsDerivable(data.is_derivable !== undefined ? data.is_derivable : true)
       setConclusions(data.conclusions)
       setUnknownFacts(data.unknown_facts || [])
       setMissingCriticalInfo(data.missing_critical_info || [])
@@ -155,6 +158,7 @@ function ConsultationPage() {
             ) : (
               <DiagnosisPanel
                 currentQuestion={currentQuestion}
+                isDerivable={isDerivable}
                 onAnswer={handleAnswer}
                 onBack={handleBack}
                 onRestart={handleRestart}

@@ -380,24 +380,40 @@ class InferenceEngine:
         """
         診断が完了できない場合の不足している重要情報を取得
 
-        導出可能な中間結論は除外し、基本的な事実のみを返す
-
         Returns:
             不足している重要情報のリスト（fact_name）
         """
         missing_info = []
 
-        # unknown_factsの中から、導出不可能な事実のみを抽出
-        print(f"DEBUG: unknown_facts = {self.unknown_facts}")
-        for fact_name in self.unknown_facts:
-            # 導出可能な事実（中間結論）は除外
-            is_derivable = self._is_derivable(fact_name)
-            print(f"DEBUG: {fact_name} -> is_derivable={is_derivable}")
-            if not is_derivable:
-                if fact_name not in missing_info:
-                    missing_info.append(fact_name)
+        # ゴールが達成されていない場合
+        if self.goal not in self.facts or not self.facts[self.goal]:
+            # ゴールに到達するためのルールを取得
+            rules = self._get_rules_with_conclusion(self.goal)
 
-        print(f"DEBUG: missing_info result = {missing_info}")
+            for rule in rules:
+                # このルールが発火不可能かチェック
+                if self._is_rule_impossible(rule):
+                    continue
+
+                # このルールの未確定条件を収集
+                for condition in rule.conditions:
+                    fact_name = condition.fact_name
+
+                    # 既に確定している条件はスキップ
+                    if fact_name in self.facts:
+                        continue
+
+                    # 「わからない」と回答された条件
+                    if fact_name in self.unknown_facts:
+                        # 導出可能な事実（中間結論）は除外 - 他の質問に答えれば自動的に導出される
+                        if self._is_derivable(fact_name):
+                            continue
+                        # この条件が他のルールで導出できないか確認
+                        if not self._can_derive_from_alternative(fact_name):
+                            # 代替パスがない重要情報
+                            if fact_name not in missing_info:
+                                missing_info.append(fact_name)
+
         return missing_info
 
     def _can_derive_from_alternative(self, fact_name: str) -> bool:
