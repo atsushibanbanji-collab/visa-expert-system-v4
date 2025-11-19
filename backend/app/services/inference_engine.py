@@ -162,7 +162,13 @@ class InferenceEngine:
         3. 事実が導出可能なら、再帰的にその事実をゴールとして探索
         4. 導出不可能なら、ユーザーに質問
         """
-        return self._find_question_for_goal(self.goal)
+        print(f"\n[DEBUG] get_next_question() called for goal: {self.goal}")
+        print(f"[DEBUG] Current facts: {list(self.facts.keys())}")
+        print(f"[DEBUG] Asked questions: {list(self.asked_questions)}")
+        print(f"[DEBUG] Unknown facts: {list(self.unknown_facts)}")
+        result = self._find_question_for_goal(self.goal)
+        print(f"[DEBUG] Returning question: {result}")
+        return result
 
     def _find_question_for_goal(self, goal: str, visited: Set[str] = None) -> Optional[str]:
         """
@@ -246,15 +252,19 @@ class InferenceEngine:
         Returns:
             次に質問すべきfact_name、またはNone
         """
+        print(f"  [DEBUG] Checking rule {rule.rule_id} -> {rule.conclusion}")
         for condition in rule.conditions:
             fact_name = condition.fact_name
+            print(f"    [DEBUG] Condition: {fact_name}")
 
             # 既に分かっている事実（「はい」「いいえ」で回答済み、確定）
             if fact_name in self.facts:
+                print(f"      [DEBUG] -> in facts, skip")
                 continue
 
             # 「わからない」で不確実な事実として記録されている場合
             if fact_name in self.uncertain_facts:
+                print(f"      [DEBUG] -> in uncertain_facts, skip")
                 # AND条件の場合はスキップ（他の条件も聞く必要がある）
                 if rule.operator == "AND":
                     continue
@@ -264,8 +274,10 @@ class InferenceEngine:
 
             # 「わからない」で保留中（導出可能な質問の場合）→ 詳細質問に進む
             if fact_name in self.unknown_facts:
+                print(f"      [DEBUG] -> in unknown_facts")
                 # この条件が導出可能なら、詳細な質問を探す
                 if self._is_derivable(fact_name):
+                    print(f"      [DEBUG] -> is derivable, recurse")
                     question = self._find_question_for_goal(fact_name, visited)
                     if question:
                         return question
@@ -274,22 +286,27 @@ class InferenceEngine:
 
             # この条件は他のルールで導出可能か？
             if self._is_derivable(fact_name):
+                print(f"      [DEBUG] -> is derivable (not asked yet)")
                 # 導出可能な質問（中間質問）は、まだ聞いていなければまず先に聞く
                 # ユーザーが「はい」と答えれば詳細質問をスキップできる（効率化）
                 # ユーザーが「わからない」と答えればunknown_factsに追加され、次回は詳細質問に進む
                 if fact_name not in self.asked_questions:
+                    print(f"      [DEBUG] -> RETURN intermediate question: {fact_name}")
                     return fact_name
 
                 # 既に聞いた場合は、次の条件へ
                 # （「はい」「いいえ」で答えられていればfactsに入っているのでline 253でスキップ済み）
                 # （「わからない」で答えられていればunknown_factsに入っているのでline 266-273で処理済み）
                 # ここに到達することはないはずだが、念のためcontinue
+                print(f"      [DEBUG] -> already asked, skip")
                 continue
 
             # 導出不可能なので、直接質問する
+            print(f"      [DEBUG] -> NOT derivable, RETURN: {fact_name}")
             return fact_name
 
         # このルールの全条件が既知または導出不可能
+        print(f"  [DEBUG] All conditions processed, return None")
         return None
 
     def _is_derivable(self, fact_name: str) -> bool:
