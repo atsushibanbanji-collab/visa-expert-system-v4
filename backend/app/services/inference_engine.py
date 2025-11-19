@@ -378,22 +378,15 @@ class InferenceEngine:
         """
         診断が完了できない場合の不足している重要情報を取得
 
-        導出可能な中間結論は除外し、基本的な事実のみを返す
+        導出不可能な質問で「わからない」と答えたもの（uncertain_facts）を返す
+        これらは最終的に「はい」として確定されるが、ユーザーに明示する必要がある
 
         Returns:
             不足している重要情報のリスト（fact_name）
         """
-        missing_info = []
-
-        # unknown_factsの中から、導出不可能な事実のみを抽出
-        for fact_name in self.unknown_facts:
-            # 導出可能な事実（中間結論）は除外
-            is_derivable = self._is_derivable(fact_name)
-            if not is_derivable:
-                if fact_name not in missing_info:
-                    missing_info.append(fact_name)
-
-        return missing_info
+        # uncertain_factsは導出不可能な質問で「わからない」と答えたもの
+        # これらを結果画面に表示する
+        return list(self.uncertain_facts.keys())
 
     def _can_derive_from_alternative(self, fact_name: str) -> bool:
         """
