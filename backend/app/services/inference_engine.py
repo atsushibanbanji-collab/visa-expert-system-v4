@@ -285,9 +285,10 @@ class InferenceEngine:
                 question = self._find_question_for_goal(fact_name, visited)
                 if question:
                     return question
-                # 詳細質問が見つからない場合は次の条件へ
-                # （導出可能なのに詳細質問がない = 全て不明/不確実なので、他の条件を試す）
-                continue
+                # 詳細質問が見つからない場合でも、この導出可能な質問を返す
+                # ユーザーが「はい」と答えれば詳細質問をスキップできる
+                # 「わからない」と答えればunknown_factsに追加され、次回は詳細質問に進む
+                return fact_name
 
             # 導出不可能なので、直接質問する
             return fact_name
