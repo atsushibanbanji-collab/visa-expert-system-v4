@@ -84,22 +84,10 @@ const DiagnosisPanel = ({
                 <p className="text-sm text-gray-700 mb-3">
                   情報が不足しているため、診断を完了できませんでした。
                 </p>
-                {unknownFacts && unknownFacts.length > 0 && (
-                  <div className="bg-yellow-100 rounded-lg p-3 border-l-4 border-yellow-500">
-                    <p className="text-xs font-semibold text-yellow-900 mb-1">
-                      以下の条件について「分からない」と回答されています：
-                    </p>
-                    <ul className="list-disc list-inside space-y-0.5 text-xs text-yellow-800">
-                      {unknownFacts.map((fact, index) => (
-                        <li key={index}>{fact}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
                 {missingCriticalInfo && missingCriticalInfo.length > 0 && (
-                  <div className="mt-3 bg-red-100 rounded-lg p-3 border-l-4 border-red-500">
+                  <div className="bg-red-100 rounded-lg p-3 border-l-4 border-red-500">
                     <p className="text-xs font-semibold text-red-900 mb-1">
-                      診断を完了するために必要な重要情報：
+                      以下の条件について「分からない」と回答されています：
                     </p>
                     <ul className="list-disc list-inside space-y-0.5 text-xs text-red-800">
                       {missingCriticalInfo.map((fact, index) => (
@@ -134,13 +122,13 @@ const DiagnosisPanel = ({
                         </li>
                       ))}
                     </ul>
-                    {unknownFacts && unknownFacts.length > 0 && (
+                    {missingCriticalInfo && missingCriticalInfo.length > 0 && (
                       <div className="bg-yellow-50 rounded-lg p-3 border-l-4 border-yellow-500">
                         <p className="text-xs font-semibold text-yellow-900 mb-1">
                           ※ 以下の条件については「分からない」と回答されているため、これらが満たされている前提での結果です：
                         </p>
                         <ul className="list-disc list-inside space-y-0.5 text-xs text-yellow-800">
-                          {unknownFacts.map((fact, index) => (
+                          {missingCriticalInfo.map((fact, index) => (
                             <li key={index}>{fact}</li>
                           ))}
                         </ul>
