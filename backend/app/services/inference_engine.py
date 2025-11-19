@@ -386,16 +386,13 @@ class InferenceEngine:
         missing_info = []
 
         # unknown_factsの中から、導出不可能な事実のみを抽出
-        print(f"DEBUG: unknown_facts = {self.unknown_facts}")
         for fact_name in self.unknown_facts:
             # 導出可能な事実（中間結論）は除外
             is_derivable = self._is_derivable(fact_name)
-            print(f"DEBUG: {fact_name} -> is_derivable={is_derivable}")
             if not is_derivable:
                 if fact_name not in missing_info:
                     missing_info.append(fact_name)
 
-        print(f"DEBUG: missing_info result = {missing_info}")
         return missing_info
 
     def _can_derive_from_alternative(self, fact_name: str) -> bool:
