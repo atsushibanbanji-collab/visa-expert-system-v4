@@ -123,9 +123,10 @@ async def answer_question(
     goal_achieved = _current_engine.goal in _current_engine.facts and _current_engine.facts[_current_engine.goal]
     insufficient_info = is_finished and not goal_achieved and len(_current_engine.unknown_facts) > 0
 
-    # Get missing critical information if diagnosis is incomplete
+    # Get missing critical information (uncertain_facts - 導出不可能な質問で「わからない」と答えたもの)
+    # 診断成功・失敗に関わらず、常に取得して表示する
     missing_critical_info = []
-    if insufficient_info:
+    if is_finished:
         # Update db session and clear cache before checking derivability
         _current_engine.db = db
         _current_engine.all_rules = None
