@@ -122,6 +122,13 @@ const DiagnosisPanel = ({
                         </li>
                       ))}
                     </ul>
+                    {(() => {
+                      console.log('[DiagnosisPanel] missingCriticalInfo:', missingCriticalInfo);
+                      console.log('[DiagnosisPanel] isFinished:', isFinished);
+                      console.log('[DiagnosisPanel] insufficientInfo:', insufficientInfo);
+                      console.log('[DiagnosisPanel] conclusions:', conclusions);
+                      return null;
+                    })()}
                     {missingCriticalInfo && missingCriticalInfo.length > 0 && (
                       <div className="bg-yellow-50 rounded-lg p-3 border-l-4 border-yellow-500">
                         <p className="text-xs font-semibold text-yellow-900 mb-1">
