@@ -132,6 +132,11 @@ async def answer_question(
         _current_engine.all_rules = None
         _current_engine.rules_by_conclusion.clear()
         missing_critical_info = _current_engine.get_missing_critical_info()
+        print(f"[DEBUG] is_finished={is_finished}")
+        print(f"[DEBUG] uncertain_facts={_current_engine.uncertain_facts}")
+        print(f"[DEBUG] missing_critical_info={missing_critical_info}")
+        print(f"[DEBUG] insufficient_info={insufficient_info}")
+        print(f"[DEBUG] conclusions={conclusions}")
 
     return schemas.ConsultationResponse(
         next_question=next_question,
