@@ -49,6 +49,21 @@ const VisaTypeSelection = ({ onSelectVisaType }) => {
         ))}
       </div>
 
+      <div className="mt-8">
+        <button
+          onClick={() => onSelectVisaType('ALL')}
+          className="w-full bg-gradient-to-r from-navy-600 to-navy-800 hover:from-navy-700 hover:to-navy-900 text-white font-bold py-6 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 transform hover:scale-105"
+        >
+          <div className="flex items-center justify-center">
+            <span className="text-xl">全てのビザタイプを一度に診断</span>
+            <span className="ml-3 text-2xl">→</span>
+          </div>
+          <p className="text-sm text-navy-100 mt-2">
+            E、L、Bビザを順番に診断し、最適なビザを見つけます
+          </p>
+        </button>
+      </div>
+
       <div className="mt-8 bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
         <p className="text-sm text-blue-800">
           <strong>ヒント:</strong> 各ビザタイプに応じた質問が表示されます。適切なビザを選択することで、効率的な診断が可能になります。

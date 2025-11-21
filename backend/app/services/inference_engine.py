@@ -388,6 +388,56 @@ class InferenceEngine:
         # これらを結果画面に表示する
         return list(self.uncertain_facts.keys())
 
+    def get_uncertain_facts_logic(self) -> dict:
+        """
+        uncertain_factsの論理構造を取得（AND/OR条件を含む）
+
+        Returns:
+            {
+                "groups": [
+                    {
+                        "rule_id": str,
+                        "conclusion": str,
+                        "operator": "AND" | "OR",
+                        "uncertain_conditions": [str, ...]
+                    },
+                    ...
+                ]
+            }
+        """
+        from app.models.models import Rule
+
+        # uncertain_factsがどのルールに属しているか調査
+        groups = []
+        processed_rules = set()
+
+        for fact_name in self.uncertain_facts.keys():
+            # このfact_nameを条件として持つルールを探す
+            rules = self.db.query(Rule).filter(
+                Rule.visa_type == self.visa_type
+            ).all()
+
+            for rule in rules:
+                if rule.rule_id in processed_rules:
+                    continue
+
+                # このルールがuncertain_factsを条件として持っているか確認
+                uncertain_conditions = []
+                for condition in rule.conditions:
+                    if condition.fact_name in self.uncertain_facts:
+                        uncertain_conditions.append(condition.fact_name)
+
+                if uncertain_conditions:
+                    groups.append({
+                        "rule_id": rule.rule_id,
+                        "conclusion": rule.conclusion,
+                        "operator": rule.operator,
+                        "uncertain_conditions": uncertain_conditions
+                    })
+                    processed_rules.add(rule.rule_id)
+
+        return {"groups": groups}
+
     def _can_derive_from_alternative(self, fact_name: str) -> bool:
         """
         指定された事実を代替パスで導出できるかチェック

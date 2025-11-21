@@ -21,6 +21,10 @@ class ConsultationResponse(BaseModel):
     unknown_facts: List[str] = []  # Facts answered as "分からない"
     insufficient_info: bool = False  # 情報不足で診断できない場合True
     missing_critical_info: List[str] = []  # 不足している重要情報のリスト
+    uncertain_facts_logic: Dict[str, Any] = {}  # uncertain_factsの論理構造（AND/OR条件）
+    current_visa_type: Optional[str] = None  # 現在診断中のビザタイプ（全ビザモード時）
+    all_visa_mode: bool = False  # 全ビザタイプを診断するモードかどうか
+    all_conclusions: Dict[str, List[str]] = {}  # 全ビザタイプの結論（visa_type -> conclusions）
 
 
 class VisualizationCondition(BaseModel):

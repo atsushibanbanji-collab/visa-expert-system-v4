@@ -14,10 +14,14 @@ function ConsultationPage() {
   const [isFinished, setIsFinished] = useState(false)
   const [insufficientInfo, setInsufficientInfo] = useState(false)
   const [missingCriticalInfo, setMissingCriticalInfo] = useState([])
+  const [uncertainFactsLogic, setUncertainFactsLogic] = useState({})
   const [visualizationData, setVisualizationData] = useState(null)
   const [questionHistory, setQuestionHistory] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [currentVisaType, setCurrentVisaType] = useState(null)
+  const [allVisaMode, setAllVisaMode] = useState(false)
+  const [allConclusions, setAllConclusions] = useState({})
 
   const startConsultation = async (visaType) => {
     setLoading(true)
@@ -37,6 +41,9 @@ function ConsultationPage() {
       setUnknownFacts(data.unknown_facts || [])
       setMissingCriticalInfo(data.missing_critical_info || [])
       setIsFinished(false)
+      setCurrentVisaType(data.current_visa_type || null)
+      setAllVisaMode(data.all_visa_mode || false)
+      setAllConclusions(data.all_conclusions || {})
       await fetchVisualization()
     } catch (err) {
       setError('診断の開始に失敗しました: ' + err.message)
@@ -72,8 +79,12 @@ function ConsultationPage() {
       setConclusions(data.conclusions)
       setUnknownFacts(data.unknown_facts || [])
       setMissingCriticalInfo(data.missing_critical_info || [])
+      setUncertainFactsLogic(data.uncertain_facts_logic || {})
       setIsFinished(data.is_finished)
       setInsufficientInfo(data.insufficient_info || false)
+      setCurrentVisaType(data.current_visa_type || null)
+      setAllVisaMode(data.all_visa_mode || false)
+      setAllConclusions(data.all_conclusions || {})
 
       if (data.next_question && !questionHistory.includes(data.next_question)) {
         setQuestionHistory([...questionHistory, data.next_question])
@@ -108,6 +119,7 @@ function ConsultationPage() {
         setConclusions([])
         setUnknownFacts([])
         setMissingCriticalInfo([])
+        setUncertainFactsLogic({})
       }
 
       await fetchVisualization()
@@ -126,10 +138,14 @@ function ConsultationPage() {
     setConclusions([])
     setUnknownFacts([])
     setMissingCriticalInfo([])
+    setUncertainFactsLogic({})
     setIsFinished(false)
     setInsufficientInfo(false)
     setVisualizationData(null)
     setError(null)
+    setCurrentVisaType(null)
+    setAllVisaMode(false)
+    setAllConclusions({})
   }
 
   return (
@@ -167,8 +183,12 @@ function ConsultationPage() {
                 isFinished={isFinished}
                 insufficientInfo={insufficientInfo}
                 missingCriticalInfo={missingCriticalInfo}
+                uncertainFactsLogic={uncertainFactsLogic}
                 questionHistory={questionHistory}
                 loading={loading}
+                currentVisaType={currentVisaType}
+                allVisaMode={allVisaMode}
+                allConclusions={allConclusions}
               />
             )}
           </div>

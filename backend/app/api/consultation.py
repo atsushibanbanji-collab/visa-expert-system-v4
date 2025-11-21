@@ -14,6 +14,14 @@ _state_snapshots = []  # List of engine state snapshots (parallel to _question_h
 _visa_type = None
 _current_question_fact = None
 
+# Multi-visa diagnosis state
+_all_visa_mode = False  # True when diagnosing all visa types
+_visa_types_to_diagnose = []  # List of visa types to diagnose (e.g., ["E", "L", "B", "H-1B", "J-1"])
+_current_visa_index = 0  # Index of current visa type being diagnosed
+_all_engines = {}  # Dict of visa_type -> InferenceEngine
+_all_conclusions = {}  # Dict of visa_type -> conclusions list
+_shared_answers = {}  # Dict of fact_name -> answer (shared across all visa types)
+
 
 @router.post("/start", response_model=schemas.ConsultationResponse)
 async def start_consultation(
@@ -22,9 +30,32 @@ async def start_consultation(
 ):
     """診断を開始"""
     global _current_engine, _question_history, _state_snapshots, _visa_type, _current_question_fact
+    global _all_visa_mode, _visa_types_to_diagnose, _current_visa_index, _all_engines, _all_conclusions, _shared_answers
 
-    _visa_type = request_data.visa_type
-    _current_engine = InferenceEngine(db, request_data.visa_type)
+    # Check if "ALL" mode
+    if request_data.visa_type == "ALL":
+        _all_visa_mode = True
+        _visa_types_to_diagnose = ["E", "L", "B"]  # Only visa types with questions
+        _current_visa_index = 0
+        _all_engines = {}
+        _all_conclusions = {}
+        _shared_answers = {}
+
+        # Initialize first visa type engine
+        _visa_type = _visa_types_to_diagnose[0]
+        _current_engine = InferenceEngine(db, _visa_type)
+        _all_engines[_visa_type] = _current_engine
+    else:
+        _all_visa_mode = False
+        _visa_types_to_diagnose = []
+        _current_visa_index = 0
+        _all_engines = {}
+        _all_conclusions = {}
+        _shared_answers = {}
+
+        _visa_type = request_data.visa_type
+        _current_engine = InferenceEngine(db, request_data.visa_type)
+
     _question_history = []
     _state_snapshots = []
 
@@ -45,6 +76,9 @@ async def start_consultation(
         # 導出可能かチェック
         is_derivable = _current_engine._is_derivable(next_question_fact)
 
+    if _all_visa_mode:
+        print(f"[DEBUG START] ALL mode: visa_type={_visa_type}, next_question_fact={next_question_fact}, next_question={next_question}")
+
     return schemas.ConsultationResponse(
         next_question=next_question,
         is_derivable=is_derivable,
@@ -52,7 +86,9 @@ async def start_consultation(
         is_finished=next_question is None,
         unknown_facts=list(_current_engine.unknown_facts),
         insufficient_info=False,
-        missing_critical_info=[]
+        missing_critical_info=[],
+        current_visa_type=_visa_type if _all_visa_mode else None,
+        all_visa_mode=_all_visa_mode
     )
 
 
@@ -63,6 +99,7 @@ async def answer_question(
 ):
     """質問に回答"""
     global _current_engine, _question_history, _state_snapshots, _current_question_fact
+    global _all_visa_mode, _visa_types_to_diagnose, _current_visa_index, _all_engines, _all_conclusions, _shared_answers, _visa_type
 
     if not _current_engine:
         raise HTTPException(status_code=404, detail="Session not found. Please start consultation first.")
@@ -75,6 +112,10 @@ async def answer_question(
     # Get fact name from question text
     question = db.query(Question).filter(Question.question_text == request_data.question).first()
     fact_name = question.fact_name if question else request_data.question
+
+    # Save answer to shared answers (for all-visa mode)
+    if _all_visa_mode:
+        _shared_answers[fact_name] = request_data.answer
 
     # Add fact and run forward chaining
     if request_data.answer is not None:
@@ -119,6 +160,48 @@ async def answer_question(
     # Get conclusions
     conclusions = _current_engine.get_conclusions()
 
+    # ALL VISA MODE: Handle transition to next visa type
+    if _all_visa_mode and is_finished:
+        # Save current visa type conclusions
+        _all_conclusions[_visa_type] = conclusions
+
+        # Move to next visa type
+        _current_visa_index += 1
+
+        if _current_visa_index < len(_visa_types_to_diagnose):
+            # Start diagnosis for next visa type
+            _visa_type = _visa_types_to_diagnose[_current_visa_index]
+            _current_engine = InferenceEngine(db, _visa_type)
+            _all_engines[_visa_type] = _current_engine
+
+            # Apply shared answers to new engine
+            for shared_fact_name, shared_answer in _shared_answers.items():
+                if shared_answer is not None:
+                    _current_engine.add_fact(shared_fact_name, shared_answer)
+                else:
+                    is_fact_derivable = _current_engine._is_derivable(shared_fact_name)
+                    if not is_fact_derivable:
+                        _current_engine.add_uncertain_fact(shared_fact_name, True)
+                    else:
+                        _current_engine.add_unknown_fact(shared_fact_name)
+
+            # Run forward chaining with shared answers
+            _current_engine.forward_chain()
+
+            # Get first question for this visa type
+            next_question_fact = _current_engine.get_next_question()
+            _current_question_fact = next_question_fact
+
+            if next_question_fact:
+                question = db.query(Question).filter(Question.fact_name == next_question_fact).first()
+                next_question = question.question_text if question else next_question_fact
+                if next_question not in _question_history:
+                    _question_history.append(next_question)
+                is_derivable = _current_engine._is_derivable(next_question_fact)
+
+            is_finished = False  # Not finished yet, still have more visa types
+            conclusions = []  # Clear current conclusions
+
     # Check if diagnosis failed due to insufficient information
     goal_achieved = _current_engine.goal in _current_engine.facts and _current_engine.facts[_current_engine.goal]
     insufficient_info = is_finished and not goal_achieved and len(_current_engine.unknown_facts) > 0
@@ -126,26 +209,34 @@ async def answer_question(
     # Get missing critical information (uncertain_facts - 導出不可能な質問で「わからない」と答えたもの)
     # 診断成功・失敗に関わらず、常に取得して表示する
     missing_critical_info = []
-    if is_finished:
+    uncertain_facts_logic = {}
+    if is_finished and not _all_visa_mode:
         # Update db session and clear cache before checking derivability
         _current_engine.db = db
         _current_engine.all_rules = None
         _current_engine.rules_by_conclusion.clear()
         missing_critical_info = _current_engine.get_missing_critical_info()
-        print(f"[DEBUG] is_finished={is_finished}")
-        print(f"[DEBUG] uncertain_facts={_current_engine.uncertain_facts}")
-        print(f"[DEBUG] missing_critical_info={missing_critical_info}")
-        print(f"[DEBUG] insufficient_info={insufficient_info}")
-        print(f"[DEBUG] conclusions={conclusions}")
+        uncertain_facts_logic = _current_engine.get_uncertain_facts_logic()
+
+    # If all visa types are finished, return all conclusions
+    final_all_conclusions = {}
+    if _all_visa_mode and is_finished:
+        # Save last visa type conclusion
+        _all_conclusions[_visa_type] = conclusions
+        final_all_conclusions = _all_conclusions
 
     return schemas.ConsultationResponse(
         next_question=next_question,
         is_derivable=is_derivable,
         conclusions=conclusions,
-        is_finished=is_finished,
+        is_finished=is_finished and (_current_visa_index >= len(_visa_types_to_diagnose) if _all_visa_mode else True),
         unknown_facts=list(_current_engine.unknown_facts),
         insufficient_info=insufficient_info,
-        missing_critical_info=missing_critical_info
+        missing_critical_info=missing_critical_info,
+        uncertain_facts_logic=uncertain_facts_logic,
+        current_visa_type=_visa_type if _all_visa_mode else None,
+        all_visa_mode=_all_visa_mode,
+        all_conclusions=final_all_conclusions if _all_visa_mode and is_finished else {}
     )
 
 
