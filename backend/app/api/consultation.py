@@ -105,6 +105,12 @@ async def answer_question(
         raise HTTPException(status_code=404, detail="Session not found. Please start consultation first.")
 
     # Update db session and clear cache to avoid connection pool exhaustion
+    # Close old session first to prevent connection leaks
+    if _current_engine.db:
+        try:
+            _current_engine.db.close()
+        except:
+            pass
     _current_engine.db = db
     _current_engine.all_rules = None
     _current_engine.rules_by_conclusion.clear()
@@ -212,6 +218,12 @@ async def answer_question(
     uncertain_facts_logic = {}
     if is_finished and not _all_visa_mode:
         # Update db session and clear cache before checking derivability
+        # Close old session first to prevent connection leaks
+        if _current_engine.db:
+            try:
+                _current_engine.db.close()
+            except:
+                pass
         _current_engine.db = db
         _current_engine.all_rules = None
         _current_engine.rules_by_conclusion.clear()
@@ -259,6 +271,12 @@ async def go_back(db: Session = Depends(get_db)):
         if _state_snapshots:
             _current_engine.restore_snapshot(_state_snapshots[0])
             # Update db session after restoration
+            # Close old session first to prevent connection leaks
+            if _current_engine.db:
+                try:
+                    _current_engine.db.close()
+                except:
+                    pass
             _current_engine.db = db
             _current_engine.all_rules = None
             _current_engine.rules_by_conclusion.clear()
@@ -276,6 +294,12 @@ async def go_back(db: Session = Depends(get_db)):
     if _state_snapshots:
         _current_engine.restore_snapshot(_state_snapshots[-1])
         # Update db session after restoration
+        # Close old session first to prevent connection leaks
+        if _current_engine.db:
+            try:
+                _current_engine.db.close()
+            except:
+                pass
         _current_engine.db = db
         _current_engine.all_rules = None
         _current_engine.rules_by_conclusion.clear()
@@ -298,6 +322,12 @@ async def get_visualization(db: Session = Depends(get_db)):
         return schemas.VisualizationResponse(rules=[], fired_rules=[], current_question_fact=None)
 
     # Update db session and clear cache to avoid lazy loading issues
+    # Close old session first to prevent connection leaks
+    if _current_engine.db:
+        try:
+            _current_engine.db.close()
+        except:
+            pass
     _current_engine.db = db
     _current_engine.all_rules = None
     _current_engine.rules_by_conclusion.clear()
