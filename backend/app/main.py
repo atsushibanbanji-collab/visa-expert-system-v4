@@ -7,7 +7,7 @@ from app.api import consultation, admin
 app = FastAPI(
     title="Visa Expert System API",
     description="オブジェクト指向エキスパートシステム - ビザ選定診断",
-    version="4.0.0",
+    version="4.1.0",
 )
 
 # CORS middleware
@@ -35,7 +35,7 @@ async def startup_event():
 async def root():
     return {
         "message": "Visa Expert System API",
-        "version": "4.0.0",
+        "version": "4.1.0",
         "documentation": "/docs",
     }
 
