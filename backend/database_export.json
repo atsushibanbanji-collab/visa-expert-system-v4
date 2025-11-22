@@ -1,0 +1,984 @@
+{
+  "questions": [
+    {
+      "fact_name": "米国拠点の業務に深く関連する2年以上の業務経験があります",
+      "question_text": "米国拠点の業務に深く関連する2年以上の業務経験があります",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "理系の大学院卒で、米国拠点の技術系の業務に深く関連する3年以上の業務経験があります",
+      "question_text": "理系の大学院卒で、米国拠点の技術系の業務に深く関連する3年以上の業務経験があります",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "Blanket Lビザのマネージャーまたはスタッフの条件を満たします",
+      "question_text": "Blanket Lビザのマネージャーまたはスタッフの条件を満たします",
+      "visa_type": "L",
+      "priority": 0
+    },
+    {
+      "fact_name": "研修にOJTが含まれます",
+      "question_text": "研修にOJTが含まれます",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "Bビザの申請条件を満たす（ESTAの認証は通らない）",
+      "question_text": "Bビザの申請条件を満たす（ESTAの認証は通らない）",
+      "visa_type": "B",
+      "priority": 0
+    },
+    {
+      "fact_name": "会社がEビザの投資の条件を満たします",
+      "question_text": "会社がEビザの投資の条件を満たします",
+      "visa_type": "E",
+      "priority": 0
+    },
+    {
+      "fact_name": "アメリカの会社に販売した装置や設備のための作業をします",
+      "question_text": "アメリカの会社に販売した装置や設備のための作業をします",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "申請者に研修に必要な英語力はあります",
+      "question_text": "申請者に研修に必要な英語力はあります",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "研修内容は商用の範囲です",
+      "question_text": "研修内容は商用の範囲です",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "研修期間は６か月以内です",
+      "question_text": "研修期間は６か月以内です",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "EビザTDY(short-term needs)の条件を満たします",
+      "question_text": "EビザTDY(short-term needs)の条件を満たします",
+      "visa_type": "E",
+      "priority": 0
+    },
+    {
+      "fact_name": "理系の学部卒で、米国拠点の技術系の業務に深く関連する4年以上の業務経験があります",
+      "question_text": "理系の学部卒で、米国拠点の技術系の業務に深く関連する4年以上の業務経験があります",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "マネジメントが求められるプロジェクトマネージャーなどの2年以上の経験があります",
+      "question_text": "マネジメントが求められるプロジェクトマネージャーなどの2年以上の経験があります",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "アメリカでの業務はspecialized knowledgeを必要とします",
+      "question_text": "アメリカでの業務はspecialized knowledgeを必要とします",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "貿易による利益が会社の経費の80％以上をカバーしています",
+      "question_text": "貿易による利益が会社の経費の80％以上をカバーしています",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "申請者がLビザ（Individual）の条件を満たします",
+      "question_text": "申請者がLビザ（Individual）の条件を満たします",
+      "visa_type": "L",
+      "priority": 0
+    },
+    {
+      "fact_name": "アメリカ以外からアメリカへのグループ内での異動です",
+      "question_text": "アメリカ以外からアメリカへのグループ内での異動です",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "装置や設備の販売を示す契約書や発注書があります",
+      "question_text": "装置や設備の販売を示す契約書や発注書があります",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "申請者と会社の国籍が同じです",
+      "question_text": "申請者と会社の国籍が同じです",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "Lビザ 質問6",
+      "question_text": "Lビザ 質問6",
+      "visa_type": "L",
+      "priority": 0
+    },
+    {
+      "fact_name": "申請者がBlanket Lビザの条件を満たします",
+      "question_text": "申請者がBlanket Lビザの条件を満たします",
+      "visa_type": "L",
+      "priority": 0
+    },
+    {
+      "fact_name": "申請者がEビザのスタッフの条件を満たします",
+      "question_text": "申請者がEビザのスタッフの条件を満たします",
+      "visa_type": "E",
+      "priority": 0
+    },
+    {
+      "fact_name": "2年以上のマネージャー経験があります",
+      "question_text": "2年以上のマネージャー経験があります",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "経営企画のマネージャーなど、米国拠点の経営に関わるポジションに就きます",
+      "question_text": "経営企画のマネージャーなど、米国拠点の経営に関わるポジションに就きます",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "2年以内の期間で、目的を限定した派遣理由を説明できます",
+      "question_text": "2年以内の期間で、目的を限定した派遣理由を説明できます",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "アメリカでの活動は商用の範囲です",
+      "question_text": "アメリカでの活動は商用の範囲です",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "マネジメント経験が2年以上あります",
+      "question_text": "マネジメント経験が2年以上あります",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "まだ十分な売り上げがなく、これまでに人件費などのランニングコストを含め、30万ドル以上支出しています",
+      "question_text": "まだ十分な売り上げがなく、これまでに人件費などのランニングコストを含め、30万ドル以上支出しています",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "大卒以上で、専攻内容と業務内容が異なりますが、実務経験が3年以上あります",
+      "question_text": "大卒以上で、専攻内容と業務内容が異なりますが、実務経験が3年以上あります",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "評価・雇用に責任を持つ複数のフルタイムのスタッフを部下に持つマネージャー以上のポジションに就きます",
+      "question_text": "評価・雇用に責任を持つ複数のフルタイムのスタッフを部下に持つマネージャー以上のポジションに就きます",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "大卒以上で、専攻内容と業務内容が一致しています",
+      "question_text": "大卒以上で、専攻内容と業務内容が一致しています",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "30万ドル以上で企業を買収した会社か、買収された会社です",
+      "question_text": "30万ドル以上で企業を買収した会社か、買収された会社です",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "アメリカにある子会社が1,000人以上ローカル採用をしています",
+      "question_text": "アメリカにある子会社が1,000人以上ローカル採用をしています",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "Blanket Lビザスタッフの条件を満たします",
+      "question_text": "Blanket Lビザスタッフの条件を満たします",
+      "visa_type": "L",
+      "priority": 0
+    },
+    {
+      "fact_name": "Bビザの申請条件を満たす（ESTAの認証は通る）",
+      "question_text": "Bビザの申請条件を満たす（ESTAの認証は通る）",
+      "visa_type": "B",
+      "priority": 0
+    },
+    {
+      "fact_name": "米国拠点の業務に深く関連する5年以上の業務経験があります",
+      "question_text": "米国拠点の業務に深く関連する5年以上の業務経験があります",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "1回の滞在期間は6か月を越えません",
+      "question_text": "1回の滞在期間は6か月を越えません",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "アメリカでの業務はマネージャーとみなされます",
+      "question_text": "アメリカでの業務はマネージャーとみなされます",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "会社の行う貿易の50％が日米間です",
+      "question_text": "会社の行う貿易の50％が日米間です",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "申請者がEビザのマネージャー以上の条件を満たします",
+      "question_text": "申請者がEビザのマネージャー以上の条件を満たします",
+      "visa_type": "E",
+      "priority": 0
+    },
+    {
+      "fact_name": "CEOなどのオフィサーのポジションに就きます",
+      "question_text": "CEOなどのオフィサーのポジションに就きます",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "アメリカでは大卒、フルタイムの部下が2名以上います",
+      "question_text": "アメリカでは大卒、フルタイムの部下が2名以上います",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "会社設立のために、30万ドル以上支出しました（不動産を除く）",
+      "question_text": "会社設立のために、30万ドル以上支出しました（不動産を除く）",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "直近3年のうち1年以上、アメリカ以外のグループ会社に所属していました",
+      "question_text": "直近3年のうち1年以上、アメリカ以外のグループ会社に所属していました",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "会社がBlanket Lビザの条件を満たします",
+      "question_text": "会社がBlanket Lビザの条件を満たします",
+      "visa_type": "L",
+      "priority": 0
+    },
+    {
+      "fact_name": "1回の滞在期間は90日を越えます",
+      "question_text": "1回の滞在期間は90日を越えます",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "H-1Bビザが必要な専門性の高い作業をします",
+      "question_text": "H-1Bビザが必要な専門性の高い作業をします",
+      "visa_type": "B",
+      "priority": 0
+    },
+    {
+      "fact_name": "米国拠点のポジションの業務に深く関連する業務の経験が2年以上あります",
+      "question_text": "米国拠点のポジションの業務に深く関連する業務の経験が2年以上あります",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "減価償却前の設備や建物が30万ドル以上財務諸表の資産に計上されています",
+      "question_text": "減価償却前の設備や建物が30万ドル以上財務諸表の資産に計上されています",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "マネージャーとしての経験があります",
+      "question_text": "マネージャーとしての経験があります",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "specialized knowledgeがあります",
+      "question_text": "specialized knowledgeがあります",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "申請者がEビザの条件を満たします",
+      "question_text": "申請者がEビザの条件を満たします",
+      "visa_type": "E",
+      "priority": 0
+    },
+    {
+      "fact_name": "会社の行う貿易は継続的です",
+      "question_text": "会社の行う貿易は継続的です",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "研修期間は18か月以内です",
+      "question_text": "研修期間は18か月以内です",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "大卒以上ではありませんが、実務経験が(高卒は12年以上、高専卒は3年以上）あります",
+      "question_text": "大卒以上ではありませんが、実務経験が(高卒は12年以上、高専卒は3年以上）あります",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "アメリカにある子会社の売り上げの合計が25百万ドル以上です",
+      "question_text": "アメリカにある子会社の売り上げの合計が25百万ドル以上です",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "マネージャー以上のポジションの業務を遂行する十分な能力があります",
+      "question_text": "マネージャー以上のポジションの業務を遂行する十分な能力があります",
+      "visa_type": null,
+      "priority": 0
+    },
+    {
+      "fact_name": "会社がEビザの条件を満たします",
+      "question_text": "会社がEビザの条件を満たします",
+      "visa_type": "E",
+      "priority": 0
+    },
+    {
+      "fact_name": "1年間に10人以上Lビザのペティション申請をしています",
+      "question_text": "1年間に10人以上Lビザのペティション申請をしています",
+      "visa_type": "L",
+      "priority": 0
+    },
+    {
+      "fact_name": "米国拠点でEビザでマネージャー以上として認められるポジションに就きます",
+      "question_text": "米国拠点でEビザでマネージャー以上として認められるポジションに就きます",
+      "visa_type": "E",
+      "priority": 0
+    },
+    {
+      "fact_name": "会社がEビザの貿易の条件を満たします",
+      "question_text": "会社がEビザの貿易の条件を満たします",
+      "visa_type": "E",
+      "priority": 0
+    },
+    {
+      "fact_name": "Lビザ（Individual）のマネージャーまたはスタッフの条件を満たします",
+      "question_text": "Lビザ（Individual）のマネージャーまたはスタッフの条件を満たします",
+      "visa_type": "L",
+      "priority": 0
+    },
+    {
+      "fact_name": "Blanket Lビザのマネージャーの条件を満たします",
+      "question_text": "Blanket Lビザのマネージャーの条件を満たします",
+      "visa_type": "L",
+      "priority": 0
+    }
+  ],
+  "rules": [
+    {
+      "rule_id": "rule_1",
+      "visa_type": "E",
+      "conclusion": "Eビザでの申請ができます",
+      "conclusion_value": true,
+      "operator": "AND",
+      "priority": 100,
+      "conditions": [
+        {
+          "fact_name": "申請者と会社の国籍が同じです",
+          "expected_value": true
+        },
+        {
+          "fact_name": "会社がEビザの条件を満たします",
+          "expected_value": true
+        },
+        {
+          "fact_name": "申請者がEビザの条件を満たします",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_2",
+      "visa_type": "E",
+      "conclusion": "会社がEビザの条件を満たします",
+      "conclusion_value": true,
+      "operator": "OR",
+      "priority": 90,
+      "conditions": [
+        {
+          "fact_name": "会社がEビザの投資の条件を満たします",
+          "expected_value": true
+        },
+        {
+          "fact_name": "会社がEビザの貿易の条件を満たします",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_3",
+      "visa_type": "E",
+      "conclusion": "会社がEビザの投資の条件を満たします",
+      "conclusion_value": true,
+      "operator": "OR",
+      "priority": 80,
+      "conditions": [
+        {
+          "fact_name": "減価償却前の設備や建物が30万ドル以上財務諸表の資産に計上されています",
+          "expected_value": true
+        },
+        {
+          "fact_name": "30万ドル以上で企業を買収した会社か、買収された会社です",
+          "expected_value": true
+        },
+        {
+          "fact_name": "まだ十分な売り上げがなく、これまでに人件費などのランニングコストを含め、30万ドル以上支出しています",
+          "expected_value": true
+        },
+        {
+          "fact_name": "会社設立のために、30万ドル以上支出しました（不動産を除く）",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_4",
+      "visa_type": "E",
+      "conclusion": "会社がEビザの貿易の条件を満たします",
+      "conclusion_value": true,
+      "operator": "AND",
+      "priority": 80,
+      "conditions": [
+        {
+          "fact_name": "会社の行う貿易の50％が日米間です",
+          "expected_value": true
+        },
+        {
+          "fact_name": "会社の行う貿易は継続的です",
+          "expected_value": true
+        },
+        {
+          "fact_name": "貿易による利益が会社の経費の80％以上をカバーしています",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_5",
+      "visa_type": "E",
+      "conclusion": "申請者がEビザの条件を満たします",
+      "conclusion_value": true,
+      "operator": "OR",
+      "priority": 70,
+      "conditions": [
+        {
+          "fact_name": "申請者がEビザのマネージャー以上の条件を満たします",
+          "expected_value": true
+        },
+        {
+          "fact_name": "申請者がEビザのスタッフの条件を満たします",
+          "expected_value": true
+        },
+        {
+          "fact_name": "EビザTDY(short-term needs)の条件を満たします",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_6",
+      "visa_type": "E",
+      "conclusion": "申請者がEビザのマネージャー以上の条件を満たします",
+      "conclusion_value": true,
+      "operator": "AND",
+      "priority": 60,
+      "conditions": [
+        {
+          "fact_name": "米国拠点でEビザでマネージャー以上として認められるポジションに就きます",
+          "expected_value": true
+        },
+        {
+          "fact_name": "マネージャー以上のポジションの業務を遂行する十分な能力があります",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_7",
+      "visa_type": "E",
+      "conclusion": "米国拠点でEビザでマネージャー以上として認められるポジションに就きます",
+      "conclusion_value": true,
+      "operator": "OR",
+      "priority": 50,
+      "conditions": [
+        {
+          "fact_name": "CEOなどのオフィサーのポジションに就きます",
+          "expected_value": true
+        },
+        {
+          "fact_name": "経営企画のマネージャーなど、米国拠点の経営に関わるポジションに就きます",
+          "expected_value": true
+        },
+        {
+          "fact_name": "評価・雇用に責任を持つ複数のフルタイムのスタッフを部下に持つマネージャー以上のポジションに就きます",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_8",
+      "visa_type": null,
+      "conclusion": "マネージャー以上のポジションの業務を遂行する十分な能力があります",
+      "conclusion_value": true,
+      "operator": "AND",
+      "priority": 50,
+      "conditions": [
+        {
+          "fact_name": "米国拠点のポジションの業務に深く関連する業務の経験が2年以上あります",
+          "expected_value": true
+        },
+        {
+          "fact_name": "マネジメント経験が2年以上あります",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_9",
+      "visa_type": null,
+      "conclusion": "マネジメント経験が2年以上あります",
+      "conclusion_value": true,
+      "operator": "OR",
+      "priority": 40,
+      "conditions": [
+        {
+          "fact_name": "2年以上のマネージャー経験があります",
+          "expected_value": true
+        },
+        {
+          "fact_name": "マネジメントが求められるプロジェクトマネージャーなどの2年以上の経験があります",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_10",
+      "visa_type": "E",
+      "conclusion": "申請者がEビザのスタッフの条件を満たします",
+      "conclusion_value": true,
+      "operator": "OR",
+      "priority": 60,
+      "conditions": [
+        {
+          "fact_name": "理系の大学院卒で、米国拠点の技術系の業務に深く関連する3年以上の業務経験があります",
+          "expected_value": true
+        },
+        {
+          "fact_name": "理系の学部卒で、米国拠点の技術系の業務に深く関連する4年以上の業務経験があります",
+          "expected_value": true
+        },
+        {
+          "fact_name": "米国拠点の業務に深く関連する5年以上の業務経験があります",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_11",
+      "visa_type": "E",
+      "conclusion": "EビザTDY(short-term needs)の条件を満たします",
+      "conclusion_value": true,
+      "operator": "AND",
+      "priority": 60,
+      "conditions": [
+        {
+          "fact_name": "2年以内の期間で、目的を限定した派遣理由を説明できます",
+          "expected_value": true
+        },
+        {
+          "fact_name": "米国拠点の業務に深く関連する2年以上の業務経験があります",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_12",
+      "visa_type": "L",
+      "conclusion": "Blanket Lビザでの申請ができます",
+      "conclusion_value": true,
+      "operator": "AND",
+      "priority": 100,
+      "conditions": [
+        {
+          "fact_name": "アメリカ以外からアメリカへのグループ内での異動です",
+          "expected_value": true
+        },
+        {
+          "fact_name": "会社がBlanket Lビザの条件を満たします",
+          "expected_value": true
+        },
+        {
+          "fact_name": "申請者がBlanket Lビザの条件を満たします",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_13",
+      "visa_type": "L",
+      "conclusion": "会社がBlanket Lビザの条件を満たします",
+      "conclusion_value": true,
+      "operator": "OR",
+      "priority": 80,
+      "conditions": [
+        {
+          "fact_name": "アメリカにある子会社の売り上げの合計が25百万ドル以上です",
+          "expected_value": true
+        },
+        {
+          "fact_name": "アメリカにある子会社が1,000人以上ローカル採用をしています",
+          "expected_value": true
+        },
+        {
+          "fact_name": "1年間に10人以上Lビザのペティション申請をしています",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_14",
+      "visa_type": "L",
+      "conclusion": "申請者がBlanket Lビザの条件を満たします",
+      "conclusion_value": true,
+      "operator": "AND",
+      "priority": 70,
+      "conditions": [
+        {
+          "fact_name": "直近3年のうち1年以上、アメリカ以外のグループ会社に所属していました",
+          "expected_value": true
+        },
+        {
+          "fact_name": "Blanket Lビザのマネージャーまたはスタッフの条件を満たします",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_15",
+      "visa_type": "L",
+      "conclusion": "Blanket Lビザのマネージャーまたはスタッフの条件を満たします",
+      "conclusion_value": true,
+      "operator": "OR",
+      "priority": 60,
+      "conditions": [
+        {
+          "fact_name": "Blanket Lビザのマネージャーの条件を満たします",
+          "expected_value": true
+        },
+        {
+          "fact_name": "Blanket Lビザスタッフの条件を満たします",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_16",
+      "visa_type": "L",
+      "conclusion": "Blanket Lビザのマネージャーの条件を満たします",
+      "conclusion_value": true,
+      "operator": "AND",
+      "priority": 50,
+      "conditions": [
+        {
+          "fact_name": "マネージャーとしての経験があります",
+          "expected_value": true
+        },
+        {
+          "fact_name": "アメリカでの業務はマネージャーとみなされます",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_17",
+      "visa_type": "L",
+      "conclusion": "Blanket Lビザスタッフの条件を満たします",
+      "conclusion_value": true,
+      "operator": "AND",
+      "priority": 50,
+      "conditions": [
+        {
+          "fact_name": "specialized knowledgeがあります",
+          "expected_value": true
+        },
+        {
+          "fact_name": "アメリカでの業務はspecialized knowledgeを必要とします",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_18",
+      "visa_type": "L",
+      "conclusion": "Lビザ（Individual）での申請ができます",
+      "conclusion_value": true,
+      "operator": "AND",
+      "priority": 100,
+      "conditions": [
+        {
+          "fact_name": "アメリカ以外からアメリカへのグループ内での異動です",
+          "expected_value": true
+        },
+        {
+          "fact_name": "申請者がLビザ（Individual）の条件を満たします",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_19",
+      "visa_type": "L",
+      "conclusion": "申請者がLビザ（Individual）の条件を満たします",
+      "conclusion_value": true,
+      "operator": "AND",
+      "priority": 70,
+      "conditions": [
+        {
+          "fact_name": "直近3年のうち1年以上、アメリカ以外のグループ会社に所属していました",
+          "expected_value": true
+        },
+        {
+          "fact_name": "Lビザ（Individual）のマネージャーまたはスタッフの条件を満たします",
+          "expected_value": true
+        },
+        {
+          "fact_name": "Lビザ 質問6",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_20",
+      "visa_type": "L",
+      "conclusion": "Lビザ（Individual）のマネージャーの条件を満たします",
+      "conclusion_value": true,
+      "operator": "AND",
+      "priority": 50,
+      "conditions": [
+        {
+          "fact_name": "マネージャーとしての経験があります",
+          "expected_value": true
+        },
+        {
+          "fact_name": "アメリカでの業務はマネージャーとみなされます",
+          "expected_value": true
+        },
+        {
+          "fact_name": "アメリカでは大卒、フルタイムの部下が2名以上います",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_21",
+      "visa_type": "L",
+      "conclusion": "Lビザ（Individual）のスタッフの条件を満たします",
+      "conclusion_value": true,
+      "operator": "AND",
+      "priority": 50,
+      "conditions": [
+        {
+          "fact_name": "specialized knowledgeがあります",
+          "expected_value": true
+        },
+        {
+          "fact_name": "アメリカでの業務はspecialized knowledgeを必要とします",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_22",
+      "visa_type": "H-1B",
+      "conclusion": "H-1Bビザでの申請ができます",
+      "conclusion_value": true,
+      "operator": "OR",
+      "priority": 100,
+      "conditions": [
+        {
+          "fact_name": "大卒以上で、専攻内容と業務内容が一致しています",
+          "expected_value": true
+        },
+        {
+          "fact_name": "大卒以上で、専攻内容と業務内容が異なりますが、実務経験が3年以上あります",
+          "expected_value": true
+        },
+        {
+          "fact_name": "大卒以上ではありませんが、実務経験が(高卒は12年以上、高専卒は3年以上）あります",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_23",
+      "visa_type": "B",
+      "conclusion": "Bビザの申請ができます",
+      "conclusion_value": true,
+      "operator": "OR",
+      "priority": 101,
+      "conditions": [
+        {
+          "fact_name": "Bビザの申請条件を満たす（ESTAの認証は通る）",
+          "expected_value": true
+        },
+        {
+          "fact_name": "Bビザの申請条件を満たす（ESTAの認証は通らない）",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_24",
+      "visa_type": "B",
+      "conclusion": "Bビザの申請条件を満たす（ESTAの認証は通る）",
+      "conclusion_value": true,
+      "operator": "AND",
+      "priority": 80,
+      "conditions": [
+        {
+          "fact_name": "アメリカでの活動は商用の範囲です",
+          "expected_value": true
+        },
+        {
+          "fact_name": "1回の滞在期間は90日を越えます",
+          "expected_value": true
+        },
+        {
+          "fact_name": "1回の滞在期間は6か月を越えません",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_25",
+      "visa_type": "B",
+      "conclusion": "Bビザの申請条件を満たす（ESTAの認証は通らない）",
+      "conclusion_value": true,
+      "operator": "AND",
+      "priority": 80,
+      "conditions": [
+        {
+          "fact_name": "アメリカでの活動は商用の範囲です",
+          "expected_value": true
+        },
+        {
+          "fact_name": "1回の滞在期間は6か月を越えません",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_26",
+      "visa_type": "B",
+      "conclusion": "契約書に基づくBビザの申請ができます",
+      "conclusion_value": true,
+      "operator": "AND",
+      "priority": 100,
+      "conditions": [
+        {
+          "fact_name": "アメリカの会社に販売した装置や設備のための作業をします",
+          "expected_value": true
+        },
+        {
+          "fact_name": "装置や設備の販売を示す契約書や発注書があります",
+          "expected_value": true
+        },
+        {
+          "fact_name": "1回の滞在期間は6か月を越えません",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_27",
+      "visa_type": "H-1B",
+      "conclusion": "B-1 in lieu of H-1Bビザの申請ができます",
+      "conclusion_value": true,
+      "operator": "AND",
+      "priority": 100,
+      "conditions": [
+        {
+          "fact_name": "H-1Bビザが必要な専門性の高い作業をします",
+          "expected_value": true
+        },
+        {
+          "fact_name": "1回の滞在期間は6か月を越えません",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_28",
+      "visa_type": "J-1",
+      "conclusion": "J-1ビザの申請ができます",
+      "conclusion_value": true,
+      "operator": "AND",
+      "priority": 100,
+      "conditions": [
+        {
+          "fact_name": "研修にOJTが含まれます",
+          "expected_value": true
+        },
+        {
+          "fact_name": "研修期間は18か月以内です",
+          "expected_value": true
+        },
+        {
+          "fact_name": "申請者に研修に必要な英語力はあります",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_29",
+      "visa_type": "B",
+      "conclusion": "Bビザの申請ができます",
+      "conclusion_value": true,
+      "operator": "AND",
+      "priority": 100,
+      "conditions": [
+        {
+          "fact_name": "研修内容は商用の範囲です",
+          "expected_value": true
+        },
+        {
+          "fact_name": "研修期間は６か月以内です",
+          "expected_value": true
+        }
+      ]
+    },
+    {
+      "rule_id": "rule_30",
+      "visa_type": "B",
+      "conclusion": "B-1 in lieu of H3ビザの申請ができます",
+      "conclusion_value": true,
+      "operator": "AND",
+      "priority": 100,
+      "conditions": [
+        {
+          "fact_name": "研修内容は商用の範囲です",
+          "expected_value": true
+        },
+        {
+          "fact_name": "研修期間は６か月以内です",
+          "expected_value": true
+        }
+      ]
+    }
+  ]
+}
